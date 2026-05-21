@@ -1,0 +1,19 @@
+--cpu Cortex-M7.fp.dp
+".\objects\main.o"
+".\objects\clock.o"
+".\objects\gpio.o"
+".\objects\croutine.o"
+".\objects\event_groups.o"
+".\objects\list.o"
+".\objects\queue.o"
+".\objects\stream_buffer.o"
+".\objects\tasks.o"
+".\objects\timers.o"
+".\objects\heap_4.o"
+".\objects\port.o"
+".\objects\startup_stm32h750xx.o"
+".\objects\system_stm32h7xx.o"
+--strict --scatter ".\Objects\main.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\main.map" -o .\Objects\main.axf

@@ -1,0 +1,160 @@
+Dependencies for Project 'main', Target 'Target 1': (DO NOT MODIFY !)
+CompilerVersion: 6190000::V6.19::ARMCLANG
+F (.\main\src\main.c)(0x6A09CC7F)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/main.o -MD)
+I (main\inc\main.h)(0x6A049346)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdio.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (E:\Keli_v5\Pack\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include\system_stm32h7xx.h)(0x63BFA668)
+I (lib\inc\clock.h)(0x6A01FCCE)
+I (lib\inc\gpio.h)(0x6A087AF9)
+F (.\lib\clock.c)(0x6A01FCCB)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/clock.o -MD)
+I (lib\inc\clock.h)(0x6A01FCCE)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdio.h)(0x63885718)
+I (lib\inc\stm32h750vbt6.h)(0x6A01F57F)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (E:\Keli_v5\Pack\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include\system_stm32h7xx.h)(0x63BFA668)
+F (.\lib\gpio.c)(0x6A09CD75)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/gpio.o -MD)
+I (lib\inc\gpio.h)(0x6A087AF9)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdio.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (lib\inc\stm32h750vbt6.h)(0x6A01F57F)
+I (E:\Keli_v5\Pack\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include\system_stm32h7xx.h)(0x63BFA668)
+F (.\FreeRTOS-Kernel\croutine.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/croutine.o -MD)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\task.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\croutine.h)(0x69F279F8)
+F (.\FreeRTOS-Kernel\event_groups.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/event_groups.o -MD)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdlib.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\task.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\timers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\event_groups.h)(0x69F279F8)
+F (.\FreeRTOS-Kernel\list.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/list.o -MD)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdlib.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+F (.\FreeRTOS-Kernel\queue.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/queue.o -MD)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdlib.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\string.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\task.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\queue.h)(0x69F279F8)
+F (.\FreeRTOS-Kernel\stream_buffer.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/stream_buffer.o -MD)
+I (E:\Keli_v5\ARM\ARMCLANG\include\string.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\task.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\stream_buffer.h)(0x69F279F8)
+F (.\FreeRTOS-Kernel\tasks.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/tasks.o -MD)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdlib.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\string.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\task.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\timers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\stack_macros.h)(0x69F279F8)
+F (.\FreeRTOS-Kernel\timers.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/timers.o -MD)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdlib.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\task.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\queue.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\timers.h)(0x69F279F8)
+F (.\FreeRTOS-Kernel\portable\MemMang\heap_4.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/heap_4.o -MD)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdlib.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\string.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\task.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+F (.\FreeRTOS-Kernel\portable\GCC\ARM_CM4F\port.c)(0x69F279F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion -Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/port.o -MD)
+I (FreeRTOS-Kernel\include\FreeRTOS.h)(0x69F279F8)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stddef.h)(0x63885718)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (FreeRTOS-Kernel\include\FreeRTOSConfig.h)(0x69FF43DC)
+I (FreeRTOS-Kernel\include\projdefs.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\portable.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\deprecated_definitions.h)(0x69F279F8)
+I (FreeRTOS-Kernel\portable\GCC\ARM_CM4F\portmacro.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\mpu_wrappers.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\task.h)(0x69F279F8)
+I (FreeRTOS-Kernel\include\list.h)(0x69F279F8)
+F (RTE/Device/STM32H750VBTx/startup_stm32h750xx.s)(0x63BFA668)(--target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-Wa,armasm,--pd,"__UVISION_VERSION SETA 538" -Wa,armasm,--pd,"_RTE_ SETA 1" -Wa,armasm,--pd,"STM32H750xx SETA 1" -Wa,armasm,--pd,"_RTE_ SETA 1"-o ./objects/startup_stm32h750xx.o)
+F (RTE/Device/STM32H750VBTx/system_stm32h7xx.c)(0x63BFA668)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./main/inc -I ./lib/inc -I ./lib -I ./FreeRTOS-Kernel/include -I ./FreeRTOS-Kernel/portable/GCC/ARM_CM4F -Wno-sign-conversion-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/system_stm32h7xx.o -MD)
+I (E:\Keli_v5\Pack\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h7xx.h)(0x63BFA668)
+I (E:\Keli_v5\Pack\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include\stm32h750xx.h)(0x63BFA668)
+I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\core_cm7.h)(0x626F58EE)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_version.h)(0x626F58EE)
+I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_compiler.h)(0x626F58EE)
+I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_armclang.h)(0x626F58EE)
+I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\mpu_armv7.h)(0x626F58EE)
+I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cachel1_armv7.h)(0x626F58EE)
+I (E:\Keli_v5\Pack\Keil\STM32H7xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32H7xx\Include\system_stm32h7xx.h)(0x63BFA668)
+I (E:\Keli_v5\ARM\ARMCLANG\include\math.h)(0x63885718)
