@@ -5,14 +5,28 @@ int clock_init(cpu_clock_t clock)
 {
     uint8_t clk = 0;
 
-    /* off clock source not use => save energy */
-    RCC->PLLCFGR &= ~(0x07 << 22);
+    //RCC->PLLCFGR &= ~(0x07 << 22);
+    /* calculate clk pll3 for i2c this clk only 36Mhz*/
+    /* select source for i2c 1 -> 4 is pll3 36Mhz*/
+    RCC->D3CCIPR &= ~(0x03 << 8); //reset
+    RCC->D3CCIPR |= (0x01 << 8); // pll3_r_ck for i2c4
+    RCC->D2CCIP2R &= ~(0x03 << 12); //reset
+    RCC->D2CCIP2R |= (0x01 << 8); // pll3_r_ck for i2c123
+
+    /* config pll3*/
+    /* DIVM3 = 32 default after reset */
+    /* set DIVN3 = 90*/
+    RCC->PLL3DIVR &= ~(0x1FF); // reset
+    RCC->PLL3DIVR |= (0x5B);
+    /* set DIVR3 = 5*/
+    RCC->PLL3DIVR &= ~(0x7F << 24); // reset 
+    RCC->PLL3DIVR |= (0x04 << 24);
 
 
     if (clock <= CLOCK_64_MHZ)
     {
         /* off clock source to save energy */
-        RCC->PLLCFGR &= ~(0x01FF << 16);
+        //RCC->PLLCFGR &= ~(0x01FF << 16);
         /* cal and set divide D1CPRE */
         if (clock != CLOCK_64_MHZ)
             clk = 8 + (CLOCK_64_MHZ - clock - 1);

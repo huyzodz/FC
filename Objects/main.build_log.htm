@@ -22,92 +22,27 @@ Dialog DLL:      TCM.DLL V1.56.4.0
  
 <h2>Project:</h2>
 E:\K49 CTU tdh\Big_project\luanvan\FC\main.uvprojx
-Project File Date:  05/13/2026
+Project File Date:  07/02/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.19', folder: 'E:\Keli_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'Target 1'
-compiling croutine.c...
-lib/gpio.c(2): warning: In file included from...
-./lib/inc\stm32h750vbt6.h(363): warning: no newline at end of file [-Wnewline-eof]
-#endif
-      ^
-lib/gpio.c(51): warning: assigning to 'uint32_t *' (aka 'unsigned int *') from 'volatile uint32_t *' (aka 'volatile unsigned int *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
-            AF = &p->AFR[0];
-               ^ ~~~~~~~~~~
-lib/gpio.c(56): warning: assigning to 'uint32_t *' (aka 'unsigned int *') from 'volatile uint32_t *' (aka 'volatile unsigned int *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
-            AF = &p->AFR[1];
-               ^ ~~~~~~~~~~
-lib/gpio.c(138): warning: operator '<<' has lower precedence than '+'; '+' will be evaluated first [-Wshift-op-parentheses]
-        p->BSRR |= (1 << pin+16);
-                      ~~ ~~~^~~
-lib/gpio.c(138): note: place parentheses around the '+' expression to silence this warning
-        p->BSRR |= (1 << pin+16);
-                            ^
-                         (     )
-lib/gpio.c(143): warning: operator '<<' has lower precedence than '+'; '+' will be evaluated first [-Wshift-op-parentheses]
-        p->BSRR &= ~(1 << pin+16);
-                       ~~ ~~~^~~
-lib/gpio.c(143): note: place parentheses around the '+' expression to silence this warning
-        p->BSRR &= ~(1 << pin+16);
-                             ^
-                          (     )
-lib/gpio.c(153): warning: no newline at end of file [-Wnewline-eof]
-}
- ^
-6 warnings generated.
-compiling gpio.c...
-compiling heap_4.c...
-compiling list.c...
-main/src/main.c(4): warning: no previous prototype for function 'test' [-Wmissing-prototypes]
-void test(void)
-     ^
-main/src/main.c(4): note: declare 'static' if the function is not intended to be used outside of this translation unit
-void test(void)
-^
-static 
-main/src/main.c(19): warning: variable 'clk' set but not used [-Wunused-but-set-variable]
-    uint32_t clk, res;
-             ^
-main/src/main.c(19): warning: unused variable 'res' [-Wunused-variable]
-    uint32_t clk, res;
-                  ^
-main/src/main.c(17): warning: no previous prototype for function 'setup' [-Wmissing-prototypes]
-void setup(void)
-     ^
-main/src/main.c(17): note: declare 'static' if the function is not intended to be used outside of this translation unit
-void setup(void)
-^
-static 
-main/src/main.c(38): warning: while loop has empty body [-Wempty-body]
-        while (1);
-                 ^
-main/src/main.c(38): note: put the semicolon on a separate line to silence this warning
-main/src/main.c(40): warning: 'return' will never be executed [-Wunreachable-code-return]
-    return 0;
-           ^
-6 warnings generated.
+compiling dma.c...
 compiling main.c...
-compiling port.c...
-lib/clock.c(2): warning: In file included from...
-./lib/inc\stm32h750vbt6.h(363): warning: no newline at end of file [-Wnewline-eof]
-#endif
-      ^
-lib/clock.c(98): warning: no newline at end of file [-Wnewline-eof]
-}
- ^
-2 warnings generated.
-compiling clock.c...
-compiling event_groups.c...
-compiling timers.c...
-compiling stream_buffer.c...
+compiling init.c...
+compiling test_i2c.c...
 assembling startup_stm32h750xx.s...
-compiling queue.c...
-compiling tasks.c...
+compiling delay.c...
+compiling clock.c...
+compiling imu_bmi270.c...
+compiling dshot.c...
+compiling i2c_master.c...
+compiling gpio.c...
+compiling usart.c...
 compiling system_stm32h7xx.c...
 linking...
-Program Size: Code=3148 RO-data=712 RW-data=8 ZI-data=1816  
-".\Objects\main.axf" - 0 Error(s), 14 Warning(s).
+Program Size: Code=9988 RO-data=8916 RW-data=12 ZI-data=1972  
+".\Objects\main.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -136,7 +71,7 @@ Package Vendor: Keil
       Include file:  Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
       Source file:   Drivers/CMSIS/Device/ST/STM32H7xx/Source/Templates/arm/startup_stm32h750xx.s
       Source file:   Drivers/CMSIS/Device/ST/STM32H7xx/Source/Templates/system_stm32h7xx.c
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

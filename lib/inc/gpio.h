@@ -41,17 +41,17 @@ typedef enum {
 } alternate_mode;
 
 typedef enum {
-    GPIOA = 0,
-    GPIOB,
-    GPIOC,
-    GPIOD,
-    GPIOE,
-    GPIOF,
-    GPIOG,
-    GPIOH,
-    GPIOI,
-    GPIOJ,
-    GPIOK
+    GPIO_PORT_A = 0,
+    GPIO_PORT_B,
+    GPIO_PORT_C,
+    GPIO_PORT_D,
+    GPIO_PORT_E,
+    GPIO_PORT_F,
+    GPIO_PORT_G,
+    GPIO_PORT_H,
+    GPIO_PORT_I,
+    GPIO_PORT_J,
+    GPIO_PORT_K
 } gpio_port;
 
 typedef enum {
@@ -67,10 +67,10 @@ typedef struct {
     gpio_mode mode;
     alternate_mode alternate; // write AF0 if not use
     gpio_output_speed OutSpeed;
-} gpio_handle_t;
+} gpio_config_t;
 
 
-void gpio_init(gpio_handle_t *handle);
+void gpio_init(gpio_config_t *handle);
 void gpio_write(gpio_port gpio, uint8_t pin, uint8_t level);
 uint16_t gpio_read(gpio_port gpio, uint8_t pin);
 

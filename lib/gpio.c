@@ -1,7 +1,7 @@
 #include "gpio.h"
 #include "stm32h750vbt6.h"
 
-void gpio_init(gpio_handle_t *handle)
+void gpio_init(gpio_config_t *handle)
 {
     GPIO_TypeDef *p = (GPIO_TypeDef *)(GPIOA_BASE + handle->gpio*0x400UL);
     uint8_t pinNum = handle->pinNum;
@@ -12,34 +12,8 @@ void gpio_init(gpio_handle_t *handle)
     /* turn on clock use for gpio */
     RCC->AHB4ENR |= (1 << (((uint32_t)p - (uint32_t)GPIOA)/1024));
 
-    /*
 
-    if (p == GPIOA)
-        RCC->AHB4ENR |= 1;
-    else if(p == GPIOB)
-        RCC->AHB4ENR |= (1 << 1);
-    else if(p == GPIOC)
-        RCC->AHB4ENR |= (1 << 2);
-    else if(p == GPIOD)
-        RCC->AHB4ENR |= (1 << 3);
-    else if(p == GPIOE)
-        RCC->AHB4ENR |= (1 << 4);
-    else if(p == GPIOF)
-        RCC->AHB4ENR |= (1 << 5);
-    else if(p == GPIOG)
-        RCC->AHB4ENR |= (1 << 6);
-    else if(p == GPIOH)
-        RCC->AHB4ENR |= (1 << 7);
-    else if(p == GPIOI)
-        RCC->AHB4ENR |= (1 << 8);
-    else if(p == GPIOJ)
-        RCC->AHB4ENR |= (1 << 9);
-    else if(p == GPIOK)
-        RCC->AHB4ENR |= (1 << 10);
-    */
-
-
-    if (mode == GPIO_ALTERNATE_INPUT || mode == GPIO_ALTERNATE_OUTPUT_OPEN_DRAIN || mode == GPIO_ALTERNATE_OUTPUT_PUSH_PULL)
+    if (mode == GPIO_ALTERNATE_INPUT || mode == GPIO_ALTERNATE_OUTPUT_OPEN_DRAIN || mode == GPIO_ALTERNATE_OUTPUT_PUSH_PULL || mode == GPIO_ALTERNATE_INPUT_PULL_UP || mode == GPIO_ALTERNATE_INPUT_PULL_DOWN)
     {
         /* pointer to AFRL or AFRH */
         uint32_t *AF;
@@ -57,13 +31,13 @@ void gpio_init(gpio_handle_t *handle)
         }
         
         /* reset mode */
-        p->MODER &= ~(0x03 << pinNum*2);
+        p->MODER &= ~(0x03 << (pinNum*2));
         /* chose mode */
-        p->MODER |= (2 << pinNum*2);
+        p->MODER |= (2 << (pinNum*2));
         /* reset */
-        *AF &= ~(0x0F << shift*4);
+        *AF &= ~(0x0F << (shift*4));
         /* apply alternate mode to reg */
-        *AF |= (ALmode << shift*4);    
+        *AF |= (ALmode << (shift*4));    
 
         if (mode == GPIO_ALTERNATE_OUTPUT_OPEN_DRAIN)
         {   
@@ -79,9 +53,9 @@ void gpio_init(gpio_handle_t *handle)
         {
             /* set for input alternate */
             /* reset */
-            p->PUPDR &= ~(0x03 << pinNum*2);
-            /* set */
-            p->PUPDR |= ((mode - GPIO_ALTERNATE_INPUT) << pinNum*2);
+            p->PUPDR &= ~(0x03 << (pinNum*2));
+            /* set pullup/pulldown*/
+            p->PUPDR |= ((mode - GPIO_ALTERNATE_INPUT) << (pinNum*2));
         }
     }
     else
@@ -90,22 +64,22 @@ void gpio_init(gpio_handle_t *handle)
         if (mode - GPIO_INPUT <= 2)
         {
             /* set for input */
-            p->MODER &= ~(0x03 << pinNum*2);
+            p->MODER &= ~(0x03 << (pinNum*2));
             /* reset pin for input */
-            p->PUPDR &= ~(0x03 << pinNum*2);
+            p->PUPDR &= ~(0x03 << (pinNum*2));
             /* set if mode is pull up */
             if (mode == GPIO_INPUT_PULLUP)
-                p->PUPDR |= (1 << pinNum*2);
+                p->PUPDR |= (1 << (pinNum*2));
             /* set if mode is pull down */
             else if (mode == GPIO_INPUT_PULLDOWN)
-                p->PUPDR |= (2 << pinNum*2);
+                p->PUPDR |= (2 << (pinNum*2));
         }
         else
         {
             /* reset MODER */
-            p->MODER &= ~(0x03 << pinNum*2);
+            p->MODER &= ~(0x03 << (pinNum*2));
             /* set for output */
-            p->MODER |= (1 << pinNum*2);
+            p->MODER |= (1 << (pinNum*2));
             /* reset for normarl output push pull */
             p->OTYPER &= ~(1 << pinNum);
             /* set 1 if open drain */
@@ -121,8 +95,8 @@ void gpio_init(gpio_handle_t *handle)
     /* set speed for output */
     if (mode == GPIO_OUTPUT_PULL_UP || mode == GPIO_OUTPUT_OPEN_DRAIN || mode == GPIO_ALTERNATE_OUTPUT_OPEN_DRAIN || mode == GPIO_ALTERNATE_OUTPUT_PUSH_PULL)
     {
-        p->OSPEEDR &= ~(0x03 << pinNum*2);
-        p->OSPEEDR |= (speed << pinNum*2);
+        p->OSPEEDR &= ~(0x03 << (pinNum*2));
+        p->OSPEEDR |= (speed << (pinNum*2));
     }
 }
 
@@ -135,12 +109,12 @@ void gpio_write(gpio_port gpio, uint8_t pin, uint8_t level)
         /* reset BS */
         p->BSRR &= ~(1 << pin);
         /* set 1 to BR */
-        p->BSRR |= (1 << pin+16);
+        p->BSRR |= (1 << (pin+16));
     }
     else
     {
         /* reset BR */
-        p->BSRR &= ~(1 << pin+16);
+        p->BSRR &= ~(1 << (pin+16));
         /* set 1 to BS */
         p->BSRR |= (1 << pin);
     }

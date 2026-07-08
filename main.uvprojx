@@ -337,10 +337,10 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>-Wno-sign-conversion</MiscControls>
+              <MiscControls>-Wno-sign-conversion -w</MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\main\inc;.\lib\inc;.\lib;.\FreeRTOS-Kernel\include;.\FreeRTOS-Kernel\portable\GCC\ARM_CM4F</IncludePath>
+              <IncludePath>.\test\inc;.\main;.\lib\inc;.\main\driver;.\main\flight;.\main\scheduler;.\main\system</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -387,7 +387,7 @@
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\main\src\main.c</FilePath>
+              <FilePath>.\main\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -400,128 +400,64 @@
               <FilePath>.\lib\clock.c</FilePath>
             </File>
             <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>dshot.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\dshot.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lib\gpio.c</FilePath>
             </File>
+            <File>
+              <FileName>i2c_master.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\i2c_master.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\usart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>FreeRTOS</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>2</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-              <ComprImg>1</ComprImg>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <uC99>2</uC99>
-                <uGnu>2</uGnu>
-                <useXO>2</useXO>
-                <v6Lang>0</v6Lang>
-                <v6LangP>0</v6LangP>
-                <vShortEn>2</vShortEn>
-                <vShortWch>2</vShortWch>
-                <v6Lto>2</v6Lto>
-                <v6WtE>2</v6WtE>
-                <v6Rtti>2</v6Rtti>
-                <VariousControls>
-                  <MiscControls>-Wno-unused-variable -Wno-shorten-64-to-32 -Wno-dollar-in-identifier-extension -Wno-padded -Wno-extra-semi-stmt -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-covered-switch-default</MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <useXO>2</useXO>
-                <ClangAsOpt>0</ClangAsOpt>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
+          <GroupName>test</GroupName>
           <Files>
             <File>
-              <FileName>croutine.c</FileName>
+              <FileName>test_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\croutine.c</FilePath>
+              <FilePath>.\test\test_i2c.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>system</GroupName>
+          <Files>
             <File>
-              <FileName>event_groups.c</FileName>
+              <FileName>init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\event_groups.c</FilePath>
+              <FilePath>.\main\system\init.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>driver</GroupName>
+          <Files>
             <File>
-              <FileName>list.c</FileName>
+              <FileName>imu_bmi270.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\list.c</FilePath>
-            </File>
-            <File>
-              <FileName>queue.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\queue.c</FilePath>
-            </File>
-            <File>
-              <FileName>stream_buffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\stream_buffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>tasks.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\tasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>timers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\timers.c</FilePath>
-            </File>
-            <File>
-              <FileName>heap_4.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\portable\MemMang\heap_4.c</FilePath>
-            </File>
-            <File>
-              <FileName>port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FreeRTOS-Kernel\portable\GCC\ARM_CM4F\port.c</FilePath>
+              <FilePath>.\main\driver\imu_bmi270.c</FilePath>
             </File>
           </Files>
         </Group>
