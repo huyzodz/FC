@@ -400,11 +400,6 @@
               <FilePath>.\lib\clock.c</FilePath>
             </File>
             <File>
-              <FileName>delay.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lib\delay.c</FilePath>
-            </File>
-            <File>
               <FileName>dma.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lib\dma.c</FilePath>
@@ -429,6 +424,11 @@
               <FileType>1</FileType>
               <FilePath>.\lib\usart.c</FilePath>
             </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\timer.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -438,6 +438,11 @@
               <FileName>test_i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\test\test_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>test_bmi270.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\test\test_bmi270.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -458,6 +463,21 @@
               <FileName>imu_bmi270.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main\driver\imu_bmi270.c</FilePath>
+            </File>
+            <File>
+              <FileName>rasp_com.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\driver\rasp_com.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>flight</GroupName>
+          <Files>
+            <File>
+              <FileName>esekf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\flight\esekf.c</FilePath>
             </File>
           </Files>
         </Group>
