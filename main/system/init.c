@@ -6,6 +6,11 @@
 #include "imu_bmi270.h"
 #include "rasp_com.h"
 #include "drone.h"
+#include "drone_scheduler.h"
+#include "task.h"
+
+
+
 
 
 void phase_1_init(void)
@@ -54,11 +59,11 @@ void phase_3_init(void)
         .max_out = 1.0f,
         .min_out = -1.0f
     };
-    pid_init(&drone_pitch, cfg);
+    pid_init(&controller_drone_pitch, cfg);
 
     // roll
     cfg.kd = 0.2f;
-    pid_init(&drone_roll, cfg);
+    pid_init(&controller_drone_roll, cfg);
 
     // z
     cfg = (pid_config_t) {
@@ -72,17 +77,17 @@ void phase_3_init(void)
         .max_out = 2.0f,
         .min_out = -2.0f
     };
-    pid_init(&drone_z, cfg);
+    pid_init(&controller_drone_z, cfg);
 
     // layer 2 smc for roll pitch z
     // pitch
-    smc_init(&drone_rate_pitch, 0.05f, (1.1*0.05f), -10.0f, 10.0f);
+    smc_init(&controller_drone_rate_pitch, 0.05f, (1.1*0.05f), -10.0f, 10.0f);
 
     // roll
-    smc_init(&drone_rate_roll, 0.05f, (1.1*0.05f), -10.0f, 10.0f);
+    smc_init(&controller_drone_rate_roll, 0.05f, (1.1*0.05f), -10.0f, 10.0f);
 
     // z
-    smc_init(&drone_rate_z, 2.0f, (1.1*2.0f), -10.0f, 10.0f);
+    smc_init(&controller_drone_velocity_z, 2.0f, (1.1*2.0f), -10.0f, 10.0f);
 
 
 
@@ -96,15 +101,17 @@ void phase_3_init(void)
     cfg.kd = 0;
     cfg.max_out = 5.0f;
     cfg.min_out = -5.0f;
-    pid_init(&drone_yaw, cfg);
+    pid_init(&controller_drone_yaw, cfg);
     // layer 2
     cfg.kp = 0.3f*0.004f;
     cfg.max_out = 2.0f;
     cfg.min_out = -2.0f;
-    pid_init(&drone_rate_yaw, cfg);
+    pid_init(&controller_drone_rate_yaw, cfg);
 
 
-
+    // task init
+    for (int i = 0;i < TASK_LENGTH;i++)
+        init_task(&TASK_DRONE[i]);
 
     delay_ms(100);
 }
@@ -118,7 +125,7 @@ void system_init(void)
     // second init this init for driver and sensor and some peripheral..
     phase_2_init();
 
-    // third init this init for controller system
+    // third init this init for controller system and task
     phase_3_init();
 
 }

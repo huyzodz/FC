@@ -31,7 +31,9 @@ void smc_init(smc_type_t *smc, float w, float sigma, float min_i, float max_i);
 
 /*
     if smc is for z then att = NULL
+    d_dot is value from sensor
 */
+
 float smc_calculate(smc_type_t *smc, float dt, float err, float desire, float d_dot, const attitude_t *att, smc_control_type type);
 
 

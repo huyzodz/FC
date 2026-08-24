@@ -55,7 +55,7 @@ uint16_t limit_speed_motor(uint16_t val)
 
 // remember to handle negative
 // remember to add time measure
-void mixer_calculate()
+void mixer_calculate(float U1, float U2, float U3, float U4)
 {   
     // div for Kf to match with matrix using
     U1 /= CONSTANT_Kf; U2 /= CONSTANT_Kf; U3 /= CONSTANT_Kf; U4 /= CONSTANT_Kf;
@@ -66,13 +66,26 @@ void mixer_calculate()
                           mixerQuadX[0].yaw * U4; 
 
     // same with above but increase position arr
-    float force_rear_r, force_front_l, force_rear_l;
+    float force_rear_r = mixerQuadX[1].throttle * U1 +
+                         mixerQuadX[1].roll * U2 +
+                         mixerQuadX[1].pitch * U3 +
+                         mixerQuadX[1].yaw * U4;
+
+    float force_front_l = mixerQuadX[2].throttle * U1 +
+                          mixerQuadX[2].roll * U2 +
+                          mixerQuadX[2].pitch * U3 +
+                          mixerQuadX[2].yaw * U4;
+
+    float force_rear_l = mixerQuadX[3].throttle * U1 +
+                         mixerQuadX[3].roll * U2 +
+                         mixerQuadX[3].pitch * U3 +
+                         mixerQuadX[3].yaw * U4;
 
     // force -> rad/s -> RPM
-    float speed_front_r = sqrt(force_front_r) * CONSTANT_RAD_TO_RPM;
-    float speed_rear_r = sqrt(force_rear_r) * CONSTANT_RAD_TO_RPM;
-    float speed_front_l = sqrt(force_front_l) * CONSTANT_RAD_TO_RPM;
-    float speed_rear_l = sqrt(force_rear_l) * CONSTANT_RAD_TO_RPM;
+    float speed_front_r = sqrt(fabsf(force_front_r)) * CONSTANT_RAD_TO_RPM;
+    float speed_rear_r = sqrt(fabsf(force_rear_r)) * CONSTANT_RAD_TO_RPM;
+    float speed_front_l = sqrt(fabsf(force_front_l)) * CONSTANT_RAD_TO_RPM;
+    float speed_rear_l = sqrt(fabsf(force_rear_l)) * CONSTANT_RAD_TO_RPM;
     
 
     // limit speed

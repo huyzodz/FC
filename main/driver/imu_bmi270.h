@@ -51,6 +51,8 @@ int bmi270_read(imu_data_t *ret, uint8_t wait_read_done);
 
 inline void bmi270_get_body_rate(const imu_data_t *data, attitude_t *ret);
 
+inline void bmi270_tranfer_using(const imu_data_t *data, imu_data_t *ret);
+
 void bmi270_calib();
 
 

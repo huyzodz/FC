@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "system_stm32h7xx.h"
 #include "init.h"
 
 

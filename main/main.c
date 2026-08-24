@@ -50,18 +50,6 @@ void test(void)
     test_bmi270();
 }
 
-/*
-void setup(void)
-{
-    uint32_t clk, res;
-    // clock init must be call at first
-    clock_init(CLOCK_120_MHZ);
-    // check clock 
-    SystemCoreClockUpdate();
-    clk = SystemCoreClock;
-}
-*/
-
 int main(void)
 {
 	
@@ -74,13 +62,6 @@ int main(void)
 	
 	// test
 	test();
-
-    
-
-	while (1)
-    {
-        dshot_write(50, 40, 100, 2000);
-    }
 
     return 0;
 	

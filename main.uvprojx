@@ -429,6 +429,11 @@
               <FileType>1</FileType>
               <FilePath>.\lib\timer.c</FilePath>
             </File>
+            <File>
+              <FileName>drone.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\flight\drone.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -478,6 +483,16 @@
               <FileName>esekf.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main\flight\esekf.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\flight\pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>smc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\flight\smc.c</FilePath>
             </File>
           </Files>
         </Group>

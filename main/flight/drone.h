@@ -3,6 +3,7 @@
 
 #include "pid.h"
 #include "smc.h"
+#include "esekf.h"
 
 #define DRONE_Ax                        0.25f
 #define DRONE_Ay                        0.25f
@@ -20,12 +21,22 @@
 
 
 
+
+
+
+
+// bias
+volatile extern imu_data_t bias;
+
+
 // layer 1
-volatile extern pid_type_t drone_x, drone_y, drone_z;
-volatile extern pid_type_t drone_roll, drone_pitch, drone_yaw;
+volatile extern pid_type_t controller_drone_x, controller_drone_y, controller_drone_z;
+volatile extern pid_type_t controller_drone_roll, controller_drone_pitch, controller_drone_yaw;
 
 // layer 2
-volatile extern pid_type_t drone_rate_x, drone_rate_y, drone_rate_yaw;
-volatile extern smc_type_t drone_rate_roll, drone_rate_pitch, drone_rate_z;
+volatile extern pid_type_t controller_drone_velocity_x, controller_drone_velocity_y, controller_drone_rate_yaw;
+volatile extern smc_type_t controller_drone_rate_roll, controller_drone_rate_pitch, controller_drone_velocity_z;
+
+
 
 #endif

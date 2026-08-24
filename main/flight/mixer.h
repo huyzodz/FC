@@ -29,7 +29,7 @@ void write_motor();
 
 
 */
-void mixer_calculate();
+void mixer_calculate(float U1, float U2, float U3, float U4);
 
 
 
