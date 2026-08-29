@@ -645,7 +645,7 @@ void bmi270_calib()
     float sum_ax = 0, sum_ay = 0, sum_az = 0;
 	int j = 0;
     // stay for imu steady
-	delay_ms(1000);
+	delay_ms(100);
     for(;j < BIAS_SAMPLE;j++)
     {
         imu_data_t temp;
@@ -689,11 +689,11 @@ int bmi270_read_raw(uint8_t *ret, uint8_t wait_read_done)
 /*
     wait read = 0 is not wait
 */
-int bmi270_read(imu_data_t *ret, uint8_t wait_read_done)
+int bmi270_read(imu_data_digital_t *ret, uint8_t wait_read_done)
 {
     // reset all data
     bmi270_data_t temp;
-    *ret = (imu_data_t){0};
+    *ret = (imu_data_digital_t){0};
     uint8_t data[bmi270_size_read];
     int status = bmi270_read_raw(data, wait_read_done);
 
@@ -728,20 +728,5 @@ int bmi270_read(imu_data_t *ret, uint8_t wait_read_done)
 }
 
 
-inline void bmi270_get_body_rate(const imu_data_t *data, attitude_t *ret)
-{
-    ret->p = BMI270_GYRO_2_RAD(data->gyrox);
-    ret->q = BMI270_GYRO_2_RAD(data->gyroy);
-    ret->r = BMI270_GYRO_2_RAD(data->gyroz);
-}
 
-inline void bmi270_tranfer_using(const imu_data_t *data, imu_data_t *ret)
-{
-    ret->accx = BMI270_ACC_2_MS2(data->accx);
-    ret->accy = BMI270_ACC_2_MS2(data->accy);
-    ret->accz = BMI270_ACC_2_MS2(data->accz);
 
-    ret->gyrox = BMI270_GYRO_2_RAD(data->gyrox);
-    ret->gyroy = BMI270_GYRO_2_RAD(data->gyroy);
-    ret->gyroz = BMI270_GYRO_2_RAD(data->gyroz);
-}

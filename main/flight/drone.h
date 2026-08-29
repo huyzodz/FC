@@ -3,8 +3,8 @@
 
 #include "pid.h"
 #include "smc.h"
-#include "esekf.h"
 
+#define DRONE_Pi                        3.14159f
 #define DRONE_Ax                        0.25f
 #define DRONE_Ay                        0.25f
 #define DRONE_Az                        0.25f
@@ -26,7 +26,7 @@
 
 
 // bias
-volatile extern imu_data_t bias;
+extern volatile imu_data_t bias;
 
 
 // layer 1

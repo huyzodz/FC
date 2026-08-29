@@ -1,6 +1,8 @@
 #include "main.h"
 #include <string.h>
 
+
+
 void test(void)
 {
     /* test */
@@ -47,14 +49,15 @@ void test(void)
     
 
     //test_i2c();
-    test_bmi270();
+    //test_bmi270();
+    test_task_imu();
 }
 
 int main(void)
 {
 	
     /* dump for loop to keep stm busy a while for erase if needed when code reg dump */
-    for (uint64_t i = 0;i < 10000000;i++);
+    for (volatile uint32_t i = 0;i < 10000000;i++);
 
     // init here
     system_init();

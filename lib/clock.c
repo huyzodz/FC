@@ -89,7 +89,8 @@ int clock_init(cpu_clock_t clock)
 
         /* setup flash latency */
         FLASH->ACR &= ~0x0F;
-        FLASH->ACR |= 0x06;
+        //FLASH->ACR |= 0x06;
+        FLASH->ACR |= 0x07;
 
 
         /* return -1 if PLL1 is lock */

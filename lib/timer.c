@@ -59,17 +59,15 @@ void timer_init()
     TIM5->SR &= ~0x01;
     TIM5->ARR = 0xFFFFFFFF;
     TIM5->CNT = 0;
-    // start
-    TIM5->CR1 |= 0x01;
 }
 
 
-void delay_us(uint32_t time)
+void delay_us(volatile uint32_t time)
 {
     DELAY_US(time, TIM2);
 }
 
-void delay_ms(uint32_t time)
+void delay_ms(volatile uint32_t time)
 {
     while (time > 0)
     {
@@ -83,3 +81,20 @@ uint32_t GET_CURRENT_US()
     return TIM5->CNT;
 }
 
+void START_SYSTEM_TIMER()
+{
+    // start
+    TIM5->CR1 |= 0x01;
+}
+
+void STOP_SYSTEM_TIMER()
+{
+    // stop
+    TIM5->CR1 &= 0x01;
+}
+
+void RESET_SYSTEM_TIMER()
+{   
+    // reset
+    TIM5->CNT = 0;
+}

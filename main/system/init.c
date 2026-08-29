@@ -16,7 +16,7 @@
 void phase_1_init(void)
 {
     // init clock source
-    clock_init(CLOCK_240_MHZ);
+    clock_init(CLOCK_480_MHZ);
 
     // init delay
     timer_init();
@@ -65,6 +65,15 @@ void phase_3_init(void)
     cfg.kd = 0.2f;
     pid_init(&controller_drone_roll, cfg);
 
+    // yaw
+    cfg.kp = 0.004f;
+    cfg.ki = 0;
+    cfg.kd = 0;
+    cfg.max_out = 5.0f;
+    cfg.min_out = -5.0f;
+    pid_init(&controller_drone_yaw, cfg);
+
+
     // z
     cfg = (pid_config_t) {
         .kp = 2.0f,
@@ -79,6 +88,8 @@ void phase_3_init(void)
     };
     pid_init(&controller_drone_z, cfg);
 
+    
+
     // layer 2 smc for roll pitch z
     // pitch
     smc_init(&controller_drone_rate_pitch, 0.05f, (1.1*0.05f), -10.0f, 10.0f);
@@ -89,20 +100,7 @@ void phase_3_init(void)
     // z
     smc_init(&controller_drone_velocity_z, 2.0f, (1.1*2.0f), -10.0f, 10.0f);
 
-
-
-
-
-
-    // yaw layer 1 and 2
-    // layer 1~
-    cfg.kp = 0.004f;
-    cfg.ki = 0;
-    cfg.kd = 0;
-    cfg.max_out = 5.0f;
-    cfg.min_out = -5.0f;
-    pid_init(&controller_drone_yaw, cfg);
-    // layer 2
+    // yaw
     cfg.kp = 0.3f*0.004f;
     cfg.max_out = 2.0f;
     cfg.min_out = -2.0f;
@@ -110,8 +108,8 @@ void phase_3_init(void)
 
 
     // task init
-    for (int i = 0;i < TASK_LENGTH;i++)
-        init_task(&TASK_DRONE[i]);
+    // for (int i = 0;i < TASK_LENGTH;i++)
+    //     init_task(&TASK_DRONE[i]);
 
     delay_ms(100);
 }
@@ -127,5 +125,4 @@ void system_init(void)
 
     // third init this init for controller system and task
     phase_3_init();
-
 }

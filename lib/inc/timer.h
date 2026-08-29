@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+
 typedef enum {
     TIMER2 = 0,
     TIMER3,
@@ -19,11 +20,15 @@ typedef enum {
 void timer_init();
 
 
-void delay_us(uint32_t time);
-void delay_ms(uint32_t time);
+void delay_us(volatile uint32_t time);
+void delay_ms(volatile uint32_t time);
 
 
 uint32_t GET_CURRENT_US();
+
+void START_SYSTEM_TIMER();
+void STOP_SYSTEM_TIMER();
+void RESET_SYSTEM_TIMER();
 
 
 

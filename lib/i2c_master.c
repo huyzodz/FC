@@ -562,8 +562,8 @@ int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t nu
 int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t num, uint8_t *buff)
 {
     I2C_TypeDef *i2c;
-    uint16_t i;
-    uint16_t j = 0;
+    volatile uint16_t i;
+    volatile uint16_t j = 0;
 
     /*
     if (num == I2C_NUM_4)

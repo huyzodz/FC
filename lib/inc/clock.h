@@ -17,6 +17,7 @@ typedef enum {
     CLOCK_320_MHZ,
     CLOCK_360_MHZ,
     CLOCK_400_MHZ,
+    CLOCK_440_MHZ,
     CLOCK_480_MHZ,
 } cpu_clock_t;
 

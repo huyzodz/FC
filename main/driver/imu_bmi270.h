@@ -36,7 +36,9 @@ typedef struct {
     float accx;
     float accy;
     float accz;
-} imu_data_t;
+} imu_data_digital_t;
+
+typedef imu_data_digital_t imu_data_t;
 
 typedef struct {
     float p;
@@ -47,13 +49,32 @@ typedef struct {
 
 int bmi270_init(bmi270_power_mode_t mode);
 
-int bmi270_read(imu_data_t *ret, uint8_t wait_read_done);
-
-inline void bmi270_get_body_rate(const imu_data_t *data, attitude_t *ret);
-
-inline void bmi270_tranfer_using(const imu_data_t *data, imu_data_t *ret);
+int bmi270_read(imu_data_digital_t *ret, uint8_t wait_read_done);
 
 void bmi270_calib();
+
+
+
+
+
+static inline void bmi270_get_body_rate(const imu_data_digital_t *data, attitude_t *ret)
+{
+    ret->p = BMI270_GYRO_2_RAD(data->gyrox);
+    ret->q = BMI270_GYRO_2_RAD(data->gyroy);
+    ret->r = BMI270_GYRO_2_RAD(data->gyroz);
+}
+
+static inline void bmi270_tranfer_using(const imu_data_digital_t *data, imu_data_t *ret)
+{
+    ret->accx = BMI270_ACC_2_MS2(data->accx);
+    ret->accy = BMI270_ACC_2_MS2(data->accy);
+    ret->accz = BMI270_ACC_2_MS2(data->accz);
+
+    ret->gyrox = BMI270_GYRO_2_RAD(data->gyrox);
+    ret->gyroy = BMI270_GYRO_2_RAD(data->gyroy);
+    ret->gyroz = BMI270_GYRO_2_RAD(data->gyroz);
+}
+
 
 
 #endif
