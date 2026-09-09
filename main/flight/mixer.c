@@ -1,6 +1,16 @@
 #include "mixer.h"
 #include "dshot.h"
 #include "math.h"
+#include "drone.h"
+
+
+#ifdef SIMULATION_ON
+
+#include "usart.h"
+#include <string.h>
+#include "simulate.h"
+
+#endif
 
 
 #define NUM_MOTOR                           4
@@ -43,7 +53,7 @@ void write_motor()
 }
 
 
-uint16_t limit_speed_motor(uint16_t val)
+float limit_speed_motor(float val)
 {
     if (val > MAX_MOTOR_SPEED)
         return MAX_MOTOR_SPEED;
@@ -82,10 +92,10 @@ void mixer_calculate(float U1, float U2, float U3, float U4)
                          mixerQuadX[3].yaw * U4;
 
     // force -> rad/s -> RPM
-    float speed_front_r = sqrt(fabsf(force_front_r)) * CONSTANT_RAD_TO_RPM;
-    float speed_rear_r = sqrt(fabsf(force_rear_r)) * CONSTANT_RAD_TO_RPM;
-    float speed_front_l = sqrt(fabsf(force_front_l)) * CONSTANT_RAD_TO_RPM;
-    float speed_rear_l = sqrt(fabsf(force_rear_l)) * CONSTANT_RAD_TO_RPM;
+    float speed_front_r = sqrtf(fabsf(force_front_r)) * CONSTANT_RAD_TO_RPM;
+    float speed_rear_r = sqrtf(fabsf(force_rear_r)) * CONSTANT_RAD_TO_RPM;
+    float speed_front_l = sqrtf(fabsf(force_front_l)) * CONSTANT_RAD_TO_RPM;
+    float speed_rear_l = sqrtf(fabsf(force_rear_l)) * CONSTANT_RAD_TO_RPM;
     
 
     // limit speed
@@ -93,6 +103,25 @@ void mixer_calculate(float U1, float U2, float U3, float U4)
     speed_rear_r = limit_speed_motor(speed_rear_r);
     speed_front_l = limit_speed_motor(speed_front_l);
     speed_rear_l = limit_speed_motor(speed_rear_l);
+
+
+#ifdef SIMULATION_ON
+
+    
+    send = (motor_output_t ){
+        .motor_front_l = (uint16_t)speed_front_l,
+        .motor_front_r = (uint16_t)speed_front_r,
+        .motor_rear_l = (uint16_t)speed_rear_l,
+        .motor_rear_r = (uint16_t)speed_rear_r
+    };
+    memcpy((temp_sim + 2), &send, sizeof(motor_output_t));
+    temp_sim[0] = 0xBB;
+    temp_sim[1] = 0xBB;
+
+    if (send.motor_front_l > 5000)
+        usart_write(temp_sim, sizeof(temp_sim), SIMULATE_COM_UART_NUM);
+
+#else
 
     // convert to dshot
     glb_arr_motor.motor_front_r = RPM_TO_DSHOT(speed_front_r);
@@ -103,5 +132,6 @@ void mixer_calculate(float U1, float U2, float U3, float U4)
 
     // write to motor
     write_motor();
+#endif
 }
 

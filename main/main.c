@@ -1,6 +1,12 @@
 #include "main.h"
 #include <string.h>
+#include "drone_scheduler.h"
 
+#ifdef SIMULATION_ON
+
+#include "simulate.h"
+
+#endif
 
 
 void test(void)
@@ -50,7 +56,8 @@ void test(void)
 
     //test_i2c();
     //test_bmi270();
-    test_task_imu();
+    test_task();
+    //test_simulation();
 }
 
 int main(void)
@@ -62,6 +69,8 @@ int main(void)
     // init here
     system_init();
 	
+
+    //FLIGHT_SYSTEM();
 	
 	// test
 	test();

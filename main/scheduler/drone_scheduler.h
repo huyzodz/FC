@@ -24,6 +24,9 @@ struct task_data_t {
 
 // all time use us
 struct task_t{
+    // use for debug
+    float dt;
+
     // this variable use to check last time task take to run, 
     // this will help desire whether it enough time to run realtime task or not
     uint32_t excution_time_last_run;

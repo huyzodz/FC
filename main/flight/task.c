@@ -1,10 +1,27 @@
-#include "drone.h"
 #include "task.h"
 #include "mixer.h"
 #include "timer.h"
 #include "math.h"
 #include "esekf.h"
+#include "barometer_dps310.h"
+#include "gps_be880.h"
+#include "pid.h"
+#include "smc.h"
+
+
+
 #include <stddef.h>
+
+
+
+#ifdef SIMULATION_ON
+
+#include "simulate.h"
+
+volatile simulate_data_rx_t data_sim;
+
+#endif
+
 
 // 15 der
 #define MAX_RAD_ROLL_REF                0.261799f
@@ -35,7 +52,7 @@ task_t TASK_DRONE [TASK_LENGTH] =
         .name_task = "sensor_handle",
         .freq = 1000,
         .last_start_time = 0,
-        .init_time_run = 1000,
+        .init_time_run = 2000,
         .last_stop_time = 0,
         .priority = TASK_REAL_TIME,
         .task = &task_handle_imu
@@ -44,20 +61,47 @@ task_t TASK_DRONE [TASK_LENGTH] =
         .name_task = "handle_rate",
         .freq = 1000,
         .last_start_time = 0,
-        .init_time_run = 1500,
+        .init_time_run = 2500,
         .last_stop_time = 0,
         .priority = TASK_REAL_TIME,
         .task = &task_handle_rate
     },
     {
         .name_task = "handle_attitude",
-        .freq = 500,
+        .freq = 300,
         .last_start_time = 0,
-        .init_time_run = 1700,
+        .init_time_run = 2700,
         .last_stop_time = 0,
         .priority = TASK_REAL_TIME,
         .task = &task_handle_attitude
-    }
+    },
+    {
+        .name_task = "handle_position",
+        .freq = 100,
+        .last_start_time = 0,
+        .init_time_run = 1500,
+        .last_stop_time = 0,
+        .priority = TASK_REAL_TIME,
+        .task = &task_handle_position
+    },
+    {
+        .name_task = "handle_compass",
+        .freq = 200,
+        .last_start_time = 0,
+        .init_time_run = 3300,
+        .last_stop_time = 0,
+        .priority = 1,
+        .task = &task_handle_compass
+    },
+    {
+        .name_task = "handle_barometer",
+        .freq = 50,
+        .last_start_time = 0,
+        .init_time_run = 3000,
+        .last_stop_time = 0,
+        .priority = 1,
+        .task = &task_handle_barometer
+    },
 };
 
 
@@ -67,10 +111,12 @@ task_t TASK_DRONE [TASK_LENGTH] =
 /*
     flobal variable use in this file
 */
-static attitude_t drone_attitute;
-static velocity_t drone_velocity;
-static quaternion_t drone_quatertion = {1,0,0,0};
-static position_t drone_position;
+#ifdef SIMULATION_ON
+
+
+imu_data_t data_bmi270;
+
+#endif
 
 // use in esekf
 // block is 3x3
@@ -83,6 +129,11 @@ static matrix_esekf_t P[5][5];
 static float roll_ref = 0.0f;
 static float pitch_ref = 0.0f;
 static float yaw_ref = 0.0f;
+
+static float x_ref = 0.0f;
+static float y_ref = 0.0f;
+static float z_ref = 5.0f;
+
 
 // variable ref for layer 2
 static float x_velocity_ref = 0.0f;
@@ -98,7 +149,7 @@ static float yaw_rate_ref = 0.0f;
 //      ******* TEST ***** ONLY
 //  *********************** MUST DELETE WHEN DONE ****************************
 static float err = 0;
-static float yaw = 0;
+
 
 
 /*
@@ -109,30 +160,48 @@ static float yaw = 0;
 void task_handle_imu(task_data_t *data)
 {
     float dt = data->dt;
+    
 
-    imu_data_digital_t data_digital_bmi270;
+#ifdef SIMULATION_ON
+    // read data from gazebo here
+    while (simulate_getData(&data_sim) != 0);
+
+    data_bmi270.accx = data_sim.accx - bias.accx;
+    data_bmi270.accy = data_sim.accy - bias.accy;
+    data_bmi270.accz = data_sim.accz - bias.accz;
+    data_bmi270.gyrox = data_sim.gyrox - bias.gyrox;
+    data_bmi270.gyroy = data_sim.gyroy - bias.gyroy;
+    data_bmi270.gyroz = data_sim.gyroz - bias.gyroz;
+
+    drone_attitute.p = data_bmi270.gyrox;
+    drone_attitute.q = data_bmi270.gyroy;
+    drone_attitute.r = data_bmi270.gyroz;
+#else
     imu_data_t data_bmi270;
+    imu_data_digital_t data_digital_bmi270;
     // read raw data rad/s
     bmi270_read(&data_digital_bmi270, 1);
-
     // tranfer to rad in gryo
     bmi270_get_body_rate(&data_digital_bmi270, &drone_attitute);
     bmi270_tranfer_using(&data_digital_bmi270, &data_bmi270);
-
+#endif
+    quaternion_t temp_q = drone_quaternion;
 
     // 3 function below is prediction from bmi270
     // norminal state
     // get quaternion
-    convert_2_quaternion(&drone_quatertion, &drone_quatertion, &data_bmi270, dt);
+    convert_2_quaternion(&drone_quaternion, &temp_q, &data_bmi270, dt);
+
+    // get velocity
+    convert_2_velocity(&drone_velocity, &drone_velocity, &drone_quaternion, &data_bmi270, dt);
 
     // get position
     convert_2_position(&drone_position, &drone_position, &drone_velocity, dt);
 
-    // get velocity
-    convert_2_velocity(&drone_velocity, &drone_velocity, &drone_quatertion, &data_bmi270, dt);
+    
 
     // covariance
-    esekf_imu_covariance(drone_quatertion, dt, data_bmi270, P);
+    esekf_imu_covariance(drone_quaternion, dt, data_bmi270, P);
 }
 
 
@@ -140,12 +209,19 @@ void task_handle_imu(task_data_t *data)
 void task_handle_position(task_data_t *data)
 {   
     float dt = data->dt;
-    // posiont ref can be from rasp
+    // ref of position can be from rasp
+    // position from drone position, this variable will predict and fix wrone base on gps and camera
+    float err_x = x_ref - drone_position.x;
+    float err_y = y_ref - drone_position.y;
+    float err_z = z_ref - drone_position.z;
+
+
+
     // handle pid for x y z
     // position for x y z
-    x_velocity_ref = pid_calculate(&controller_drone_x, err, dt);
-    y_velocity_ref = pid_calculate(&controller_drone_y, err, dt);
-    z_velocity_ref = pid_calculate(&controller_drone_z, err, dt);
+    x_velocity_ref = pid_calculate(&controller_drone_x, err_x, dt);
+    y_velocity_ref = pid_calculate(&controller_drone_y, err_y, dt);
+    z_velocity_ref = pid_calculate(&controller_drone_z, err_z, dt);
 }
 
 void task_handle_velocity(task_data_t *data)
@@ -153,11 +229,11 @@ void task_handle_velocity(task_data_t *data)
     float dt = data->dt;
     float accelerate_x;
     float accelerate_y;
-
+    float roll, pitch, yaw;
     // this variable yaw need to read careful
     // use data from esksf which fix by gps, camera and imu
-    float cy = cosf(yaw);
-    float sy = sinf(yaw);
+    float cy;
+    float sy;
     float ax_body, ay_body;
 
     // handle x y
@@ -166,7 +242,13 @@ void task_handle_velocity(task_data_t *data)
     accelerate_x = pid_calculate(&controller_drone_velocity_x, err_velocity_x, dt);
     accelerate_y = pid_calculate(&controller_drone_velocity_y, err_velocity_y, dt);
 
+    
+
     // tranfer to bodyframe
+    quaternion_2_euler(&drone_quaternion, &roll, &pitch, &yaw);
+    cy = cosf(yaw);
+    sy = sinf(yaw);
+
     ax_body = cy * accelerate_x + sy * accelerate_y;
     ay_body = -sy * accelerate_x + cy * accelerate_y;
 
@@ -186,7 +268,7 @@ void task_handle_attitude(task_data_t *data)
     /*
         err_roll = roll_ref - sensor value
     */
-    quaternion_2_euler(&drone_quatertion, &roll, &pitch, &yaw);
+    quaternion_2_euler(&drone_quaternion, &roll, &pitch, &yaw);
     err_pitch = pitch_ref - pitch;
     err_roll = roll_ref - roll;
     err_yaw = yaw_ref - yaw;
@@ -228,9 +310,39 @@ void task_handle_rate(task_data_t *data)
     mixer_calculate(U1, U2, U3, U4);
 }
 
+void task_handle_barometer(task_data_t *data)
+{
+    float data_barometer;
+    //barometer_dps310_read_2_height(&data_barometer);
+#ifdef SIMULATION_ON
+    while (barometer_dps310_read_2_height(&data_barometer) != 0);
+#else
+
+#endif
+    esekf_update_with_barometer(P, data_barometer);
+}
+
+
+void task_handle_compass(task_data_t *data)
+{
+    float compass_yaw;
+    float roll, pitch, yaw;
+
+    quaternion_2_euler(&drone_quaternion, &roll, &pitch, &yaw);
+    // handle error when read error
+    if (be880_read_compass_2_yaw(roll, pitch, &compass_yaw) != 0) return;
+    
+#ifdef SIMULATION_ON
+    test_yaw = compass_yaw;
+#endif
+
+    esekf_update_with_compass(P, compass_yaw, yaw);
+}
+
 
 /*
 
     some Background task
 
 */
+

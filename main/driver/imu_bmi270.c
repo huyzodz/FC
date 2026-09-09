@@ -3,7 +3,17 @@
 #include "i2c_master.h"
 #include "timer.h"
 #include "drone.h"
-#include "stdint.h"
+#include <stdint.h>
+
+#ifdef SIMULATION_ON
+
+#include "simulate.h"
+
+#endif
+
+
+// bias
+volatile imu_data_t bias;
 
 
 // change 0x69 if base on board address
@@ -11,11 +21,14 @@
 #define ADDRESS_READ_DATA_BMI270        0x0C
 
 #define CHANNEL_DMA_READ_BMI270         DMA_MUX_CHANNEL_3
+
 #define GPIO_SCL_BMI270                 6
 #define GPIO_SDA_BMI270                 7
 #define GPIO_PORT_BMI270                GPIO_PORT_B
-#define MODE_I2C_SPEED_BMI270           I2C_MODE_100KHZ
 #define NUM_I2C_BMI270                  I2C_NUM_1
+
+#define MODE_I2C_SPEED_BMI270           I2C_MODE_100KHZ
+
 
 #define BIAS_SAMPLE                     1000
 #define ACCZ_BIAS                       -4096.0f
@@ -649,7 +662,20 @@ void bmi270_calib()
     for(;j < BIAS_SAMPLE;j++)
     {
         imu_data_t temp;
+#ifdef SIMULATION_ON
+        simulate_data_rx_t data_sim_temp;
+        while (simulate_getData(&data_sim_temp) != 0);
+        temp.accx = data_sim_temp.accx;
+        temp.accy = data_sim_temp.accy;
+        temp.accz = data_sim_temp.accz;
+
+        temp.gyrox = data_sim_temp.gyrox;
+        temp.gyroy = data_sim_temp.gyroy;
+        temp.gyroz = data_sim_temp.gyroz;
+#else
         bmi270_read(&temp, 1);
+#endif
+
         delay_ms(10);
         sum_gx += temp.gyrox;
         sum_gy += temp.gyroy;
@@ -658,6 +684,7 @@ void bmi270_calib()
         sum_ax += temp.accx;
         sum_ay += temp.accy;
         sum_az += temp.accz;
+
     }
 
     bias.gyrox = (float)sum_gx/BIAS_SAMPLE;
@@ -668,7 +695,11 @@ void bmi270_calib()
     bias.accy = (float)sum_ay/BIAS_SAMPLE;
     // 4096 is number when 9.81 when tranfer to g
     // need check again
+#ifdef SIMULATION_ON
+    bias.accz = (float)sum_az/BIAS_SAMPLE;
+#else
     bias.accz = (float)sum_az/BIAS_SAMPLE + ACCZ_BIAS;
+#endif
 }
 
 /*
@@ -681,9 +712,10 @@ int bmi270_read_raw(uint8_t *ret, uint8_t wait_read_done)
     int status = i2c_burst_read(ADDRESS_DEVICE_BMI270, ADDRESS_READ_DATA_BMI270, bmi270_size_read, NUM_I2C_BMI270, CHANNEL_DMA_READ_BMI270, ret);
     // wait read
     if (wait_read_done)
-        while (i2c_check_read_burst() != I2C_TRUE);
+        while (i2c_check_read_burst(NUM_I2C_BMI270) != I2C_TRUE);
     return status;
 }
+
 
 
 /*
@@ -723,6 +755,14 @@ int bmi270_read(imu_data_digital_t *ret, uint8_t wait_read_done)
     ret->accx = (float)temp.acc_x - bias.accx;
     ret->accy = (float)temp.acc_y - bias.accy;
     ret->accz = (float)temp.acc_z - bias.accz;
+
+    // ret->gyrox = (float)temp->gyro_x - bias.gyrox;
+    // ret->gyroy = (float)temp->gyro_y - bias.gyroy;
+    // ret->gyroz = (float)temp->gyro_z - bias.gyroz;
+
+    // ret->accx = (float)temp->acc_x - bias.accx;
+    // ret->accy = (float)temp->acc_y - bias.accy;
+    // ret->accz = (float)temp->acc_z - bias.accz;
 
     return 0;
 }

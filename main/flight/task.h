@@ -2,10 +2,29 @@
 #define _TASK_H_
 
 #include "drone_scheduler.h"
+#include "drone.h"
 
-#define TASK_LENGTH                     7
+#ifdef SIMULATION_ON
+
+#include "esekf.h"
+
+#endif
+
+
+//#define TASK_LENGTH                     7
+#define TASK_LENGTH                     6
+
 
 extern task_t TASK_DRONE [TASK_LENGTH];
+
+
+#ifdef SIMULATION_ON
+
+
+extern imu_data_t data_bmi270;
+
+#endif
+
 
 
 // real time
@@ -23,7 +42,16 @@ void task_handle_velocity(task_data_t *data);
 // use for roll pitch yaw
 void task_handle_attitude(task_data_t *data);
 
+// priority high
+
+// use for fix error for yaw
+void task_handle_compass(task_data_t *data);
+
+//fix error for z
+void task_handle_barometer(task_data_t *data);
+
 // background
+
 void task_handle_gps(task_data_t *data);
 void task_handle_rasp(task_data_t *data);
 

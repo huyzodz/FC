@@ -3,6 +3,9 @@
 #include "drone.h"
 
 
+// layer 2
+volatile smc_type_t controller_drone_rate_roll, controller_drone_rate_pitch, controller_drone_velocity_z;
+
 
 static inline float sat(float val)
 {
@@ -54,6 +57,24 @@ float smc_calculate(smc_type_t *smc, float dt, float err, float desire, float d_
     // update previous
     smc->desire_previous = desire;
 
+#ifdef SIMULATION_ON
+
+    smc->debug.err = err;
+    smc->debug.d_dot =d_dot;
+    smc->debug.V_desire_dot = V_desire_dot;
+
+    //return SMC control signal
+    if (type == SMC_Z)
+        return (DRONE_m*((-DRONE_Az/DRONE_m)*d_dot - DRONE_g - V_desire_dot) - smc->sigma*sqrtf(fabsf(phi))*sat_phi - smc->w*smc->Intergral_sat_phi);
+    else if (type == SMC_PITCH)
+        // for pitch
+        return ((DRONE_Iy/DRONE_l)*(-att->p*att->r*(DRONE_Iz - DRONE_Ix)/DRONE_Iy - att->p*(DRONE_Jr/DRONE_Iy)*DRONE_Omr + V_desire_dot) - smc->sigma*sqrtf(fabsf(phi))*sat_phi - smc->w*smc->Intergral_sat_phi);
+    else
+        // for roll
+        return ((DRONE_Ix/DRONE_l)*(-att->q*att->r*(DRONE_Iy - DRONE_Iz)/DRONE_Ix - att->q*(DRONE_Jr/DRONE_Ix)*DRONE_Omr + V_desire_dot) - smc->sigma*sqrtf(fabsf(phi))*sat_phi - smc->w*smc->Intergral_sat_phi);
+
+#else
+
     //return SMC control signal
     if (type == SMC_Z)
         return (DRONE_m*((-DRONE_Az/DRONE_m)*d_dot + DRONE_g - V_desire_dot) - smc->sigma*sqrtf(fabsf(phi))*sat_phi - smc->w*smc->Intergral_sat_phi);
@@ -63,5 +84,5 @@ float smc_calculate(smc_type_t *smc, float dt, float err, float desire, float d_
     else
         // for roll
         return ((DRONE_Ix/DRONE_l)*(-att->q*att->r*(DRONE_Iy - DRONE_Iz)/DRONE_Ix - att->q*(DRONE_Jr/DRONE_Ix)*DRONE_Omr + V_desire_dot) - smc->sigma*sqrtf(fabsf(phi))*sat_phi - smc->w*smc->Intergral_sat_phi);
-
+#endif
 }

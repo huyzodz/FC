@@ -340,7 +340,7 @@
               <MiscControls>-Wno-sign-conversion -w</MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\test\inc;.\main;.\lib\inc;.\main\driver;.\main\flight;.\main\scheduler;.\main\system</IncludePath>
+              <IncludePath>.\test\inc;.\main;.\lib\inc;.\main\driver;.\main\flight;.\main\scheduler;.\main\system;.\simulation</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -612,6 +612,16 @@
               <FileType>1</FileType>
               <FilePath>.\main\driver\rasp_com.c</FilePath>
             </File>
+            <File>
+              <FileName>barometer_dps310.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\driver\barometer_dps310.c</FilePath>
+            </File>
+            <File>
+              <FileName>gps_be880.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\driver\gps_be880.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -794,6 +804,16 @@
               <FileName>drone_scheduler.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main\scheduler\drone_scheduler.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>simulation</GroupName>
+          <Files>
+            <File>
+              <FileName>simulate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\simulation\simulate.c</FilePath>
             </File>
           </Files>
         </Group>

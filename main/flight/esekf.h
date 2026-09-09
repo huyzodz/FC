@@ -3,7 +3,7 @@
 
 #include "imu_bmi270.h"
 #include "stdint.h"
-#include "drone.h"
+
 
 typedef struct {
     float w;
@@ -35,6 +35,14 @@ typedef struct {
 } matrix_esekf_t;
 
 
+
+// struct for using in task
+extern volatile position_t drone_position;
+extern volatile attitude_t drone_attitute;
+extern volatile velocity_t drone_velocity;
+extern volatile quaternion_t drone_quaternion;
+
+
 /*
     only use with data is rad/s
     each variable with k follow is previous
@@ -50,7 +58,8 @@ void convert_2_position(position_t *ret, const position_t *pk, const velocity_t 
 void quaternion_2_euler(const quaternion_t *q, float *roll, float *pitch, float *yaw);
 
 void esekf_imu_covariance(quaternion_t qua, float dt, imu_data_t imu_data, matrix_esekf_t ret[5][5]);
-
+void esekf_update_with_barometer(matrix_esekf_t P[5][5], float height);
+void esekf_update_with_compass(matrix_esekf_t P[5][5], float compass_yaw, float yaw);
 
 
 

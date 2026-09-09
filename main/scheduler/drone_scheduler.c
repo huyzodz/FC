@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 // us
-#define OVERTIME_TASK_WAIT                  2
+#define OVERTIME_TASK_WAIT                  0
 
 static inline int8_t CHECK_READY_2_RUN(const task_t *task, task_t *next_important_task)
 {
@@ -34,6 +34,8 @@ static inline void general_run(task_t *ptr)
     uint32_t start_time = GET_CURRENT_US();
     // calculate dt
     float dt = CALCULATE_DT(start_time, (*ptr));
+    
+    ptr->dt = dt;
 
     task_data_t data = {
         .dt = dt
@@ -74,6 +76,8 @@ void init_task(task_t *ret)
 void FLIGHT_SYSTEM(void)
 {
     task_t *next_important_task = NULL;
+    //init_task(&TASK_DRONE[task_num]);
+    START_SYSTEM_TIMER();
     while (1)
     {
         // run task here

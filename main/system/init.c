@@ -8,9 +8,17 @@
 #include "drone.h"
 #include "drone_scheduler.h"
 #include "task.h"
+#include "barometer_dps310.h"
+#include "gps_be880.h"
+#include "pid.h"
+#include "smc.h"
 
 
+#ifdef SIMULATION_ON
 
+#include "simulate.h"
+
+#endif
 
 
 void phase_1_init(void)
@@ -33,13 +41,19 @@ void phase_1_init(void)
 
 void phase_2_init(void)
 {
+    
+#ifdef SIMULATION_ON
+    simulation_init();
+#else
     // init bmi270
     bmi270_init(BMI270_NORMAL_POWER_MODE);
 	delay_ms(10);
     // init rasp_com
     rasp_com_init();
 	delay_ms(100);
-
+#endif
+    gps_be880_init(BE880_HAS_COMPASS);
+    barometer_dps310_init();
 }
 
 void phase_3_init(void)
@@ -83,8 +97,8 @@ void phase_3_init(void)
         .min_derivative = -10.0f,
         .max_intergral = 10.0f,
         .min_intergral = -10.0f,
-        .max_out = 2.0f,
-        .min_out = -2.0f
+        .max_out = 0.25f,
+        .min_out = -0.25f
     };
     pid_init(&controller_drone_z, cfg);
 
@@ -108,10 +122,13 @@ void phase_3_init(void)
 
 
     // task init
-    // for (int i = 0;i < TASK_LENGTH;i++)
-    //     init_task(&TASK_DRONE[i]);
+    for (int i = 0;i < TASK_LENGTH;i++)
+        init_task(&TASK_DRONE[i]);
 
     delay_ms(100);
+
+    // calib
+    bmi270_calib();
 }
 
 

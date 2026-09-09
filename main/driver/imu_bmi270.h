@@ -3,6 +3,7 @@
 
 #include "stdint.h"
 
+
 /******/
 // K = (2000/32768)*pi/180
 #define BMI270_GYRO_2_RAD(val)      ((float)val*0.00106526f)
@@ -47,14 +48,21 @@ typedef struct {
 }attitude_t;
 
 
+
+
+// bias
+extern volatile imu_data_t bias;
+
+
+
+
 int bmi270_init(bmi270_power_mode_t mode);
 
 int bmi270_read(imu_data_digital_t *ret, uint8_t wait_read_done);
 
+
+
 void bmi270_calib();
-
-
-
 
 
 static inline void bmi270_get_body_rate(const imu_data_digital_t *data, attitude_t *ret)

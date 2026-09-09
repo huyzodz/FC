@@ -71,13 +71,13 @@ void i2c_stop_tranfer(i2c_num_t i2c_num);
 
 
 /* return 0 if success else return -1 */
-int i2c_write_byte(uint8_t val, i2c_num_t i2c_num);
+//int i2c_write_byte(uint8_t val, i2c_num_t i2c_num);
 
 /* return 0 if success else return -1 */
-int i2c_read_byte(uint8_t *ret, i2c_num_t i2c_num);
+// int i2c_read_byte(uint8_t *ret, i2c_num_t i2c_num);
 
 int i2c_write_reg(uint8_t addr_dev, uint8_t addr, uint8_t val, i2c_num_t num);
-uint8_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num);
+int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num);
 
 /*
     max length is 255 byte
@@ -93,7 +93,7 @@ uint8_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num);
 
 */
 int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t num, dma_mux1_channel_t dma_channel, uint8_t *ret);
-i2c_bool_t i2c_check_read_burst();
+i2c_bool_t i2c_check_read_burst(i2c_num_t num);
 
 int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t num, uint8_t *buff);
 

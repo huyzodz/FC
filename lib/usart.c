@@ -141,10 +141,11 @@ void usart_init(usart_config_t cfg)
     SystemCoreClockUpdate();
     uint32_t clock = SystemCoreClock;
     /* calculate clk_time */
-    if (clock > 120000000)
-        clock = clock/2;
     if (clock > 240000000)
+        clock = clock/4; 
+    else if (clock > 120000000)
         clock = clock/2;
+    
 
     /* set ptr */
     USART_TypeDef *usart = usart_table[num];
@@ -214,7 +215,7 @@ void usart_init(usart_config_t cfg)
 
     /* init struct for use in this file */
     usart_data_glb_rx[num] = (usart_data_t*)malloc(sizeof(usart_data_t));
-    usart_data_glb_rx[num]->cir_flag = 0;
+    usart_data_glb_rx[num]->flag = 0;
     usart_data_glb_rx[num]->data = data_rx;
     usart_data_glb_rx[num]->pRead = 0;
     usart_data_glb_rx[num]->pWrite = 0;
@@ -226,7 +227,7 @@ void usart_init(usart_config_t cfg)
     dma_callback_handle_t dma_callback_cfg = {
         .cb = &usart_callback_dma_rx,
         .channel = dma_rx,
-        .data = &usart_data_glb_rx[num]->cir_flag
+        .data = &usart_data_glb_rx[num]->flag
     };
 
 
@@ -248,7 +249,8 @@ void usart_init(usart_config_t cfg)
 int get_size(uint16_t pRead, uint16_t pWrite, uint8_t cir_flag, uint16_t size)
 {
     if (cir_flag)
-        return (pRead < pWrite) ? (pWrite - pRead) : (size - pRead + pWrite);
+        //return (pRead < pWrite) ? (pWrite - pRead) : (size - pRead + pWrite);
+        return (size + pWrite - pRead);
     
     return (pWrite - pRead);
 }
@@ -256,10 +258,10 @@ int get_size(uint16_t pRead, uint16_t pWrite, uint8_t cir_flag, uint16_t size)
 
 int usart_read(uint8_t *ret, uint16_t length, usart_num_t num)
 {
-    /* set ptr */
+    // set ptr 
     USART_TypeDef *usart = usart_table[num];
 
-    uint8_t cir_flag = usart_data_glb_rx[num]->cir_flag;
+    uint8_t cir_flag = usart_data_glb_rx[num]->flag;
     uint8_t *data_rx = usart_data_glb_rx[num]->data;
     uint16_t pWrite = usart_data_glb_rx[num]->pWrite;
     uint16_t pRead = usart_data_glb_rx[num]->pRead;
@@ -267,34 +269,40 @@ int usart_read(uint8_t *ret, uint16_t length, usart_num_t num)
     dma_mux1_channel_t channel = usart_data_glb_rx[num]->dma_channel_rx;
 
 
-    /* set dma */
+    // set dma 
     DMA_Stream_TypeDef *dma = (DMA_Stream_TypeDef*)(DMA1_Stream0_BASE + (channel*0x18));
 
+    // jsut add to test
+    // wait busy
+    while ((usart->ISR >> 16) & 0x01 != 0);
+    uint16_t write_size = (size - dma->NDTR);
     uint16_t size_read;
 
-    /* check and handle pWrite */
+    // check and handle pWrite 
     if (cir_flag == 1)
     {
-        /* flag = 1 when dma tranfer reach end and back to begin */
-        if (pRead < (size - dma->NDTR))
+        // flag = 1 when dma tranfer reach end and back to begin 
+        if (pRead < write_size)
         {   
-            /* should change to plus lenght*/
+            // should change to plus lenght
             //pRead = size - dma->NDTR;
-            /* use this to tranfer if data is block */
-            pRead += length;
+            //use this to tranfer if data is block 
+            //pRead += length;
+            pRead += write_size;
         }
             
 
-        pWrite = size;
+        //pWrite = write_size;
     }
-	else
-		pWrite = size - dma->NDTR;
+	//else
+		//pWrite = write_size;
+    pWrite = write_size;
 
-    /* return -1 if no data */
+    // return -1 if no data 
     if (get_size(pRead, pWrite, cir_flag, size) < length)
         return -1;
 
-    /* condition when cir */
+    // condition when cir 
     size_read = length;
 
 
@@ -307,17 +315,19 @@ int usart_read(uint8_t *ret, uint16_t length, usart_num_t num)
 		if (pRead >= size)
         {
             pRead = 0;
-            usart_data_glb_rx[num]->cir_flag = 0;
+            usart_data_glb_rx[num]->flag = 0;
         }
     }
 
-    /* update */
-    usart_data_glb_rx[num]->pWrite = pWrite ;
+    // update 
+    usart_data_glb_rx[num]->pWrite = pWrite;
     usart_data_glb_rx[num]->pRead = pRead;
     
 
-    return 0;
+    return size_read;
 }
+
+
 
 int usart_write(uint8_t *src, uint16_t length, usart_num_t num)
 {

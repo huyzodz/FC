@@ -2,6 +2,8 @@
 #define _PID_H_
 
 
+#include "define_sim.h"
+
 typedef struct {
 
     // limit for intergral
@@ -17,7 +19,22 @@ typedef struct {
     float kp, ki, kd;
 } pid_config_t;
 
+
+#ifdef SIMULATION_ON
+
 typedef struct {
+    float output;
+} debug_pid_t;
+
+#endif
+
+typedef struct {
+
+#ifdef SIMULATION_ON
+
+    debug_pid_t debug;
+
+#endif
     // intergral
     float I;
 
@@ -26,6 +43,15 @@ typedef struct {
 
     pid_config_t setting;
 } pid_type_t;
+
+
+
+// layer 1
+volatile extern pid_type_t controller_drone_x, controller_drone_y, controller_drone_z;
+volatile extern pid_type_t controller_drone_roll, controller_drone_pitch, controller_drone_yaw;
+
+// layer 2
+volatile extern pid_type_t controller_drone_velocity_x, controller_drone_velocity_y, controller_drone_rate_yaw;
 
 
 void pid_init(pid_type_t *ret, pid_config_t cfg);

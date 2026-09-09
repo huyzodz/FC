@@ -7,10 +7,10 @@
 
 uint32_t test_time;
 
-void test_task_imu(void)
+void test_task(void)
 {
-    uint8_t task_num = 2;
-    bmi270_calib();
+    uint8_t task_num = 4;
+    //bmi270_calib();
 
     
     init_task(&TASK_DRONE[task_num]);

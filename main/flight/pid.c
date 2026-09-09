@@ -3,6 +3,16 @@
 #include <stdio.h>
 #include <math.h>
 
+
+
+// layer 1
+volatile pid_type_t controller_drone_x, controller_drone_y, controller_drone_z;
+volatile pid_type_t controller_drone_roll, controller_drone_pitch, controller_drone_yaw;
+
+// layer 2
+volatile pid_type_t controller_drone_velocity_x, controller_drone_velocity_y, controller_drone_rate_yaw;
+
+
 static inline float pid_min_max(float val, float min, float max)
 {   
     if (val > max)
@@ -56,6 +66,11 @@ float pid_calculate(pid_type_t *val, float err, float dt)
     // update err
     val->err_previous = err;
 
+#ifdef SIMULATION_ON
+
+    val->debug.output = pid_min_max(val_P + val_I + val_D, val->setting.min_out, val->setting.max_out);
+
+#endif
 
     // return val 
     return pid_min_max(val_P + val_I + val_D, val->setting.min_out, val->setting.max_out);

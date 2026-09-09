@@ -81,7 +81,8 @@ typedef struct {
 typedef struct {
     uint16_t pRead, pWrite;
     uint16_t size;
-    uint8_t cir_flag;
+    // flag = 1 when tranfer reach end
+    uint8_t flag;
     uint8_t *data;
 
     dma_mux1_channel_t dma_channel_rx;

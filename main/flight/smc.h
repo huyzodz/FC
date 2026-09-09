@@ -3,6 +3,8 @@
 
 #include "imu_bmi270.h"
 
+#include "define_sim.h"
+
 
 typedef enum {
     SMC_Z = 0,
@@ -10,7 +12,23 @@ typedef enum {
     SMC_ROLL
 }smc_control_type;
 
+
+#ifdef SIMULATION_ON
+
 typedef struct {
+    float err;
+    float d_dot;
+    float V_desire_dot;
+} debug_smc_t;
+
+#endif
+
+typedef struct {
+    // test variable
+#ifdef SIMULATION_ON
+    debug_smc_t debug;
+#endif
+
     float w;
     float sigma;
     
@@ -25,6 +43,9 @@ typedef struct {
 
 } smc_type_t;
 
+
+// layer 2
+volatile extern smc_type_t controller_drone_rate_roll, controller_drone_rate_pitch, controller_drone_velocity_z;
 
 
 void smc_init(smc_type_t *smc, float w, float sigma, float min_i, float max_i);

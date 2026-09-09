@@ -21,7 +21,8 @@
 
 #define I2C_TIMEOUT                     100000
 
-volatile i2c_bool_t FLAG_BURST_READ_DONE = I2C_FALSE;
+// volatile i2c_bool_t FLAG_BURST_READ_DONE = I2C_FALSE;
+volatile i2c_bool_t FLAG_BURST_READ_DONE[3] = {I2C_FALSE, I2C_FALSE, I2C_FALSE};
 
 
 #define I2C_SET_WRITE_MODE(i2c)         ((i2c)->CR2 &= ~(0x01 << 10))
@@ -56,6 +57,25 @@ void i2c_clear_flag_stop(I2C_TypeDef *i2c)
 }
 
 
+static inline void i2c_error_recovery(i2c_num_t num, dma_mux1_channel_t dma_num)
+{
+    I2C_TypeDef *i2c = i2c_table[num];
+
+    // turn off i2c PE
+    i2c->CR1 &= ~0x01;
+
+    // clear all flag in isr
+    I2C_CLEAR_ALL_FLAG(i2c);
+
+    // restart dma
+    if (dma_num <= DMA_MUX_CHANNEL_15)
+        dma_stop(dma_num);
+
+    // restart i2c PE
+    i2c->CR1 |= 0x01;
+}
+
+
 int i2c_set_address(uint8_t addr, i2c_num_t i2c_num)
 {
     I2C_TypeDef *i2c;
@@ -84,8 +104,11 @@ void i2c_callback_handle(void *arg)
     /* clear flag */
     if (data->complete_flag)
     {
+        uint8_t index = 0;
         I2C_TypeDef *i2c = (I2C_TypeDef*)data->data;
-        FLAG_BURST_READ_DONE = I2C_TRUE;
+        if (i2c == I2C2) index = 1;
+        else if (i2c == I2C3) index = 2;
+        FLAG_BURST_READ_DONE[index] = I2C_TRUE;
         i2c_clear_flag_stop(i2c);
     }
 }
@@ -410,6 +433,7 @@ int i2c_write_reg(uint8_t addr_dev, uint8_t addr, uint8_t val, i2c_num_t num)
     if (i2c_write_byte(addr, num) == -1 || i2c_write_byte(val, num) == -1)
     {
         i2c_stop_tranfer(num);
+        i2c_error_recovery(num, -1);
         return -1;
     }
     
@@ -418,7 +442,7 @@ int i2c_write_reg(uint8_t addr_dev, uint8_t addr, uint8_t val, i2c_num_t num)
     return 0;
 }
 
-uint8_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
+int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
 {
     /* set i2c */
     I2C_TypeDef *i2c;
@@ -453,7 +477,8 @@ uint8_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
     if (i2c_write_byte(addr, num) == -1)
     {
         i2c_stop_tranfer(num);
-        return 0;
+        i2c_error_recovery(num, -1);
+        return -1;
     }
         
 
@@ -472,6 +497,7 @@ uint8_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
     if (i2c_restart(num, 1, MODE_READ, I2C_TRUE) == -1)
     {
         i2c_stop_tranfer(num);
+        i2c_error_recovery(num, -1);
         return -1;
     }
         
@@ -480,7 +506,8 @@ uint8_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
     if (i2c_read_byte(&val, num) == -1)
     {
         i2c_stop_tranfer(num);
-        return 0;
+        i2c_error_recovery(num, -1);
+        return -1;
     }
     
     i2c_clear_flag_stop(i2c);
@@ -489,11 +516,11 @@ uint8_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
 
 }
 
-i2c_bool_t i2c_check_read_burst()
+i2c_bool_t i2c_check_read_burst(i2c_num_t num)
 {
-    if (FLAG_BURST_READ_DONE)
+    if (FLAG_BURST_READ_DONE[num])
     {
-        FLAG_BURST_READ_DONE = I2C_FALSE;
+        FLAG_BURST_READ_DONE[num] = I2C_FALSE;
         return I2C_TRUE;
     }
     return I2C_FALSE;
@@ -522,13 +549,14 @@ int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t nu
 
     /* start i2c */
     if (i2c_start(num, 1, MODE_WRITE, addr_dev, I2C_FALSE) == -1)
-        return -1;
+        goto err_handle;
+        
 
     /* set address */
     if (i2c_write_byte(addr, num) == -1)
     {
         i2c_stop_tranfer(num);
-        return -1;
+        goto err_handle;
     }
         
 
@@ -539,7 +567,7 @@ int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t nu
     dma_SetAddr(&i2c->RXDR, (uint8_t*)ret, length, dma_channel);
     dma_start(dma_channel);
     // flag for check burst read
-    FLAG_BURST_READ_DONE = I2C_FALSE;
+    FLAG_BURST_READ_DONE[num] = I2C_FALSE;
 
     /* set byte for read */
     // i2c->CR2 &= ~(0xFF << 16); // reset bit
@@ -552,11 +580,14 @@ int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t nu
     if (i2c_restart(num, length, MODE_READ, I2C_TRUE) == -1)
     {
         i2c_stop_tranfer(num);
-        return -1;
+        goto err_handle;
     }
         
-    
     return 0;
+
+err_handle:
+    i2c_error_recovery(num, dma_channel);
+    return -1;
 }
 
 int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t num, uint8_t *buff)
@@ -578,12 +609,12 @@ int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t n
     if (length > 255)
     {
         if (i2c_start(num, 256, MODE_WRITE, addr_dev, I2C_TRUE) == -1)
-            return -1;
+            goto err_handle;
     }
     else 
     {
         if (i2c_start(num, length + 1, MODE_WRITE, addr_dev, I2C_TRUE) == -1)
-            return -1;
+            goto err_handle;
     }
         
 
@@ -592,7 +623,7 @@ int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t n
     if (i2c_write_byte(addr, num) == -1)
     {
         i2c_stop_tranfer(num);
-        return -1;
+        goto err_handle;
     }
 
     for (i = 0;i < length;i++)
@@ -625,9 +656,7 @@ int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t n
         if (i2c_write_byte(buff[i], num) == -1)
         {   
             i2c_stop_tranfer(num);
-            // clear all flag
-            I2C_CLEAR_ALL_FLAG(i2c);
-            return -1;
+            goto err_handle;
         }
 
         // this variable use for slow down cpu when i2c reach 254 bytes tranfer 
@@ -636,4 +665,9 @@ int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t n
     }
     // clear flag
     i2c_clear_flag_stop(i2c);
+    return 0;
+
+err_handle:
+    i2c_error_recovery(num, -1);
+    return -1;
 }

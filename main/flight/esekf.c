@@ -1,7 +1,7 @@
 #include "esekf.h"
 #include <math.h>
 #include <string.h>
-
+#include "drone.h"
 
 /*                              CHECK AGAIN D3 in covariance IF STH WRONG                 */
 
@@ -13,6 +13,12 @@
 
 
 float ax_w, ay_w, az_w;
+
+// struct for using in task
+volatile attitude_t drone_attitute;
+volatile velocity_t drone_velocity;
+volatile quaternion_t drone_quaternion = {1,0,0,0};
+volatile position_t drone_position;
 // use in esekf
 
 // matrix_esekf_t Qw[5][5];
@@ -169,6 +175,59 @@ static inline void quaternion_to_rotation(quaternion_t qua, float R[3][3])
     R[2][2] = 1.0f - 2.0f * (xx + yy);
 }
 
+
+static inline void update_norminal_state(float x[15])
+{
+    quaternion_t q_temp, q_new;
+    float q_norm;
+
+    // position update
+    drone_position.x += x[0];
+    drone_position.y += x[1];
+    drone_position.z += x[2];
+
+    // velocity update
+    drone_velocity.vx += x[3];
+    drone_velocity.vy += x[4];
+    drone_velocity.vz += x[5];
+
+    // quaternion update
+    q_temp.w = 1.0f;
+    q_temp.x = x[6] * 0.5f;
+    q_temp.y = x[7] * 0.5f;
+    q_temp.z = x[8] * 0.5f;
+    // normalize
+    q_norm = sqrtf(q_temp.w*q_temp.w + q_temp.x*q_temp.x + q_temp.y*q_temp.y + q_temp.z*q_temp.z);
+
+    q_temp.w /= q_norm;
+    q_temp.x /= q_norm;
+    q_temp.y /= q_norm;
+    q_temp.z /= q_norm;
+
+    q_new.w = drone_quaternion.w * q_temp.w - drone_quaternion.x * q_temp.x - drone_quaternion.y * q_temp.y - drone_quaternion.z * q_temp.z;
+    q_new.x = drone_quaternion.w * q_temp.x + drone_quaternion.x * q_temp.w + drone_quaternion.y * q_temp.z - drone_quaternion.z * q_temp.y;
+    q_new.y = drone_quaternion.w * q_temp.y - drone_quaternion.x * q_temp.z + drone_quaternion.y * q_temp.w + drone_quaternion.z * q_temp.x;
+    q_new.z = drone_quaternion.w * q_temp.z + drone_quaternion.x * q_temp.y - drone_quaternion.y * q_temp.x + drone_quaternion.z * q_temp.w;
+
+    // normalize new q
+    q_norm = sqrtf(q_new.w*q_new.w + q_new.x*q_new.x + q_new.y*q_new.y + q_new.z*q_new.z);
+    drone_quaternion.w = q_new.w / q_norm;
+    drone_quaternion.x = q_new.x / q_norm;
+    drone_quaternion.y = q_new.y / q_norm;
+    drone_quaternion.z = q_new.z / q_norm;
+
+    // update bias gyro
+    bias.gyrox += x[9];
+    bias.gyroy += x[10];
+    bias.gyroz += x[11];
+
+    // update bias acc
+    bias.accx += x[12];
+    bias.accy += x[13];
+    bias.accz += x[14];
+}
+
+
 /*
 
     ******************************
@@ -185,7 +244,7 @@ void convert_2_quaternion(quaternion_t *ret, const quaternion_t *qk, const imu_d
     ux = (float)data->gyrox*dt;
     uy = (float)data->gyroy*dt;
     uz = (float)data->gyroz*dt;
-    alpha = (float)sqrt(pow(ux,2) + pow(uy,2) + pow(uz,2));
+    alpha = (float)sqrtf(powf(ux,2) + powf(uy,2) + powf(uz,2));
 
     // if not rotate
     if (alpha < 1e-8f)
@@ -199,10 +258,10 @@ void convert_2_quaternion(quaternion_t *ret, const quaternion_t *qk, const imu_d
     uz /= alpha;
 
     //calculate delta quaternion
-    delta_q.w = cos(alpha/2);
-    delta_q.x = ux*sin(alpha/2);
-    delta_q.y = uy*sin(alpha/2);
-    delta_q.z = uz*sin(alpha/2);
+    delta_q.w = cosf(alpha/2);
+    delta_q.x = ux*sinf(alpha/2);
+    delta_q.y = uy*sinf(alpha/2);
+    delta_q.z = uz*sinf(alpha/2);
 
     // multiply 2 quaternion
     // qk * delta_q
@@ -217,7 +276,7 @@ void convert_2_quaternion(quaternion_t *ret, const quaternion_t *qk, const imu_d
     ret->y = qk->w*delta_q.y - qk->x*delta_q.z + qk->y*delta_q.w + qk->z*delta_q.x;
     ret->z = qk->w*delta_q.z + qk->x*delta_q.y - qk->y*delta_q.x + qk->z*delta_q.w;
 
-    alpha_q = sqrtf(pow(ret->w, 2) + pow(ret->x, 2) + pow(ret->y, 2) + pow(ret->z, 2));
+    alpha_q = sqrtf(powf(ret->w, 2) + powf(ret->x, 2) + powf(ret->y, 2) + powf(ret->z, 2));
 
     // standardization
     if (alpha_q > 1e-8f)
@@ -281,14 +340,24 @@ void convert_2_velocity(velocity_t *ret, const velocity_t *vk, const quaternion_
     // below is intergral from acc to velocity DRONE_g is minus or add base on z line
     ret->vx = vk->vx + ax_w*dt;
     ret->vy = vk->vy + ay_w*dt;
+
+#ifdef SIMULATION_ON
+    ret->vz = vk->vz + (az_w)*dt;
+#else
     ret->vz = vk->vz + (az_w - DRONE_g)*dt;
+#endif
 }
 
 void convert_2_position(position_t *ret, const position_t *pk, const velocity_t *vk, float dt)
 {
     ret->x = pk->x + vk->vx*dt + (float)0.5f*ax_w*dt*dt;
     ret->y = pk->y + vk->vy*dt + (float)0.5f*ay_w*dt*dt;
+
+#ifdef SIMULATION_ON
+    ret->z = pk->z + vk->vz*dt + (float)0.5f*(az_w)*dt*dt;
+#else
     ret->z = pk->z + vk->vz*dt + (float)0.5f*(az_w - DRONE_g)*dt*dt;
+#endif
 }
 
 
@@ -610,4 +679,105 @@ void quaternion_2_euler(const quaternion_t *q, float *roll, float *pitch, float 
     *roll = atan2f(2*(q->w*q->x + q->y*q->z), 1 - 2*(q->x*q->x + q->y*q->y));
     *pitch = asinf(val);
     *yaw  = atan2f(2*(q->w*q->z + q->y*q->x), 1 - 2*(q->z*q->z + q->y*q->y));
+}
+
+void esekf_update_with_barometer(matrix_esekf_t P[5][5], float height)
+{
+    // V = sigma*I, need to modify
+    float V = 0.0004f;
+    float temp;
+    float K[15];
+    float x_hat[15];
+    float err_z = (height - drone_position.z);
+    float P_tempz[15];
+
+    // (H*P*H' + V)^-1
+    temp = (float)1.0f/(P[0][0].data[2][2] + V);
+
+    // P*H' * temp
+    for (int i = 0;i < 5;i++)
+    {
+        for (int j = 0;j < 3;j++)
+        {
+
+            // handle K
+            K[(i*3) + j] = P[i][0].data[j][2] * temp;
+
+            // handle error state of x
+            x_hat[(i*3) + j] = K[(i*3) + j] * err_z;
+
+            // save location of current variable in matrix P
+            P_tempz[(i*3) + j] = P[0][i].data[2][j];
+        }
+    }
+
+    // update P = (I - KH)P
+    for (int i = 0;i < 5;i++)
+    {
+        for (int j = 0;j < 5;j++)
+        {
+            for (int ii = 0;ii < 3;ii++)
+            {
+                for (int jj = 0; jj < 3;jj++)
+                {
+                    P[i][j].data[ii][jj] -= K[(i * 3) + ii] * P_tempz[(j * 3) + jj];
+                }
+            }
+        }
+    }
+
+    
+
+    // update 
+    update_norminal_state(x_hat);
+}
+
+void esekf_update_with_compass(matrix_esekf_t P[5][5], float compass_yaw, float yaw)
+{
+    float V = 1.21847e-3f;
+    float temp;
+    float K[15];
+    float x_hat[15];
+    float err_z = compass_yaw - yaw;
+    float P_tempz[15];
+    quaternion_t q_temp;
+
+    // (H*P*H' + V)^-1
+    temp = (float)1.0f/(P[2][2].data[2][2] + V);
+
+    // P*H' * temp
+    for (int i = 0;i < 5;i++)
+    {
+        for (int j = 0;j < 3;j++)
+        {
+            // handle K
+            K[(i*3) + j] = P[i][2].data[j][2] * temp;
+
+            // handle error state of x
+            x_hat[(i*3) + j] = K[(i*3) + j] * err_z;
+
+            // save location of current variable in matrix P
+            P_tempz[(i*3) + j] = P[2][i].data[2][j];
+        }
+    }
+
+    // update P = (I - KH)P
+    for (int i = 0;i < 5;i++)
+    {
+        for (int j = 0;j < 5;j++)
+        {
+            for (int ii = 0;ii < 3;ii++)
+            {
+                for (int jj = 0; jj < 3;jj++)
+                {
+                    P[i][j].data[ii][jj] -= K[(i * 3) + ii] * P_tempz[(j * 3) + jj];
+                }
+            }
+        }
+    }
+
+    
+    // update
+    update_norminal_state(x_hat);
+
 }
