@@ -9,7 +9,7 @@ uint32_t test_time;
 
 void test_task(void)
 {
-    uint8_t task_num = 4;
+    uint8_t task_num = 0;
     //bmi270_calib();
 
     

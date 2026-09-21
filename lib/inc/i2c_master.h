@@ -30,7 +30,8 @@ typedef struct {
     i2c_bool_t analog_filter;
     // i2c_bool_t digital_filter;
 
-    gpio_port port;
+    gpio_port port_scl;
+    gpio_port port_sda;
     uint8_t gpio_scl;
     uint8_t gpio_sda;
 
@@ -76,6 +77,8 @@ void i2c_stop_tranfer(i2c_num_t i2c_num);
 /* return 0 if success else return -1 */
 // int i2c_read_byte(uint8_t *ret, i2c_num_t i2c_num);
 
+
+// return -1 if err
 int i2c_write_reg(uint8_t addr_dev, uint8_t addr, uint8_t val, i2c_num_t num);
 int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num);
 

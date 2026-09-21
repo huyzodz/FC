@@ -109,18 +109,20 @@ void i2c_callback_handle(void *arg)
         if (i2c == I2C2) index = 1;
         else if (i2c == I2C3) index = 2;
         FLAG_BURST_READ_DONE[index] = I2C_TRUE;
-        i2c_clear_flag_stop(i2c);
+        /* clear flag*/
+        i2c->ICR |= (1 << 5);
     }
 }
 
 
 /* should pull up resistor 2->5kom*/
-void i2c_gpio_init(gpio_port port, uint8_t gpio_scl, uint8_t gpio_sda)
+void i2c_gpio_init(gpio_port port_scl, gpio_port port_sda, uint8_t gpio_scl, uint8_t gpio_sda)
 {
     gpio_config_t scl = {
         .mode = GPIO_ALTERNATE_OUTPUT_OPEN_DRAIN,
+        .pull = reserved,
         .pinNum = gpio_scl,
-        .gpio = port,
+        .gpio = port_scl,
         .OutSpeed = very_high_speed,
         .alternate = AF4
     };
@@ -128,7 +130,8 @@ void i2c_gpio_init(gpio_port port, uint8_t gpio_scl, uint8_t gpio_sda)
     gpio_config_t sda = {
         .mode = GPIO_ALTERNATE_OUTPUT_OPEN_DRAIN,
         .pinNum = gpio_sda,
-        .gpio = port,
+        .pull = reserved,
+        .gpio = port_sda,
         .OutSpeed = very_high_speed,
         .alternate = AF4
     };
@@ -194,10 +197,10 @@ void i2c_init(i2c_config_t cfg)
     */
     i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
 
-    gpio_port port = cfg.port;
+    //gpio_port port = cfg.port;
     uint8_t gpio_scl = cfg.gpio_scl, gpio_sda = cfg.gpio_sda;
     /* init gpio for i2c */
-    i2c_gpio_init(port, gpio_scl, gpio_sda);
+    i2c_gpio_init(cfg.port_scl, cfg.port_sda, gpio_scl, gpio_sda);
 
 
     /* enable clk */
@@ -234,6 +237,7 @@ void i2c_init(i2c_config_t cfg)
     // disable PE
     i2c->CR1 &= ~(0x01 << 23);
 
+    delay_ms(1);
 
     /* init dma for read */
     i2c_dma_init(i2c_dma_rx, num);
@@ -307,7 +311,7 @@ int i2c_restart(i2c_num_t i2c_num, uint8_t num_byte_tranfer, i2c_mode_tranfer_t 
 
     /* wait tranfer complete */
     int i = 0;
-    while (!((i2c->ISR>>6) & 0x01))
+    while (!((i2c->ISR >> 6) & 0x01))
     {
         if (i++ > I2C_TIMEOUT)
             return -1;
@@ -349,8 +353,8 @@ int i2c_write_byte(uint8_t val, i2c_num_t i2c_num)
 
     int i = 0;
     /* if out timer out then return -1*/
-    /* wait TXIS*/
-    while (!((i2c->ISR) & 0x02))
+    /* wait TXE*/
+    while (!((i2c->ISR) & 0x01))
     {
         i++;
         if (i > I2C_TIMEOUT)
@@ -379,6 +383,7 @@ int i2c_read_byte(uint8_t *ret, i2c_num_t i2c_num)
     int i = 0;
 
     /* if out timer out then return -1*/
+    // wait to read
     while (!((i2c->ISR >> 2) & 0x01))
     {
         i++;
@@ -393,6 +398,7 @@ int i2c_read_byte(uint8_t *ret, i2c_num_t i2c_num)
         i2c->ICR |= (1 << 4);
         return -1;
     }
+
 
     *ret = (uint8_t)i2c->RXDR;
     return 0;
@@ -409,6 +415,8 @@ int i2c_write_reg(uint8_t addr_dev, uint8_t addr, uint8_t val, i2c_num_t num)
         i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
     */
     i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
+    // clear flag first if need
+    i2c_clear_flag_stop(i2c);
     
     /* return -1 if fail in set address */
     // if (i2c_set_address(addr_dev, i2c) == -1)
@@ -456,7 +464,8 @@ int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
         i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
     */
     i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
-
+    // clear flag first
+    i2c_clear_flag_stop(i2c);
     /* return -1 if fail in set address */
     // if (i2c_set_address(addr_dev, i2c) == -1)
     //     return -1;
@@ -509,7 +518,9 @@ int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
         i2c_error_recovery(num, -1);
         return -1;
     }
-    
+
+    delay_us(10);
+
     i2c_clear_flag_stop(i2c);
     // i2c_stop_tranfer(num);
     return val;
@@ -524,6 +535,8 @@ i2c_bool_t i2c_check_read_burst(i2c_num_t num)
         return I2C_TRUE;
     }
     return I2C_FALSE;
+
+    //return FLAG_BURST_READ_DONE[num];
 }
 
 int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t num, dma_mux1_channel_t dma_channel, uint8_t *ret)
@@ -538,6 +551,8 @@ int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t nu
     */
     i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
 
+    // first clear flag
+    i2c_clear_flag_stop(i2c);
     /* return -1 if fail in set address */
     // if (i2c_set_address(addr_dev, i2c) == -1)
     //     return -1;
@@ -604,6 +619,9 @@ int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t n
     */
     i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
 
+    // first clear flag
+    i2c_clear_flag_stop(i2c);
+    
     /* start i2c */
     // check if length too large to enable reload
     if (length > 255)

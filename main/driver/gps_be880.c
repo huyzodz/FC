@@ -30,14 +30,19 @@
 #define GPIO_PORT_COMPASS_BE880                     GPIO_PORT_B
 #define MODE_I2C_SPEED_BE880                        I2C_MODE_100KHZ
 
+#define COMPASS_SIZE_READ                           6
 
 
 volatile static uint8_t be880_data_ram[BE880_RAM_SIZE];
 
+volatile uint8_t compass_data_ram [COMPASS_SIZE_READ * 2];
+int8_t flag_read_compass = 0;
+int8_t flag_read_compass_err = 0;
+
 
 void gps_be880_init(be880_type_t cfg)
 {
-#ifdef SIMULATION_ON
+#ifndef SIMULATION_ON
 
 // #else
     usart_config_t usart_cfg = {
@@ -57,7 +62,7 @@ void gps_be880_init(be880_type_t cfg)
         .data = be880_data_ram
     };
     usart_init(usart_cfg);
-
+#endif
 
     // config i2c if need
     if (cfg)
@@ -71,7 +76,8 @@ void gps_be880_init(be880_type_t cfg)
             .i2c_mode = MODE_I2C_SPEED_BE880,
             .i2c_num = NUM_I2C_BE880,
             .irq_en = I2C_FALSE,
-            .port = GPIO_PORT_COMPASS_BE880
+            .port_scl = GPIO_PORT_COMPASS_BE880,
+            .port_sda = GPIO_PORT_COMPASS_BE880
         };
         i2c_init(cfg);
 
@@ -92,37 +98,43 @@ void gps_be880_init(be880_type_t cfg)
         }
     }
 
-#endif
 }
 
-int be880_read_compass(compass_data_t *ret)
+int be880_send_cmd_read_compass(void)
 {
-#ifdef SIMULATION_ON
-    int check = i2c_burst_read(ADDRESS_DEVICE_BE880, 0x00, 6, NUM_I2C_BE880, BE880_I2C_DMA_READ, temp_compass_i2c);
+    int check;
+    uint8_t *ptr;
+    if (flag_read_compass == 0)
+        ptr = compass_data_ram;
+    else
+        ptr = compass_data_ram + COMPASS_SIZE_READ;
+    check = i2c_burst_read(ADDRESS_DEVICE_BE880, 0x00, COMPASS_SIZE_READ, NUM_I2C_BE880, BE880_I2C_DMA_READ, ptr);
+
+    if (check == 0)
+    {
+        // handle err for read
+        flag_read_compass = (flag_read_compass == 0) ? 1 : 0;
+        flag_read_compass_err = 0;
+    }
+    else
+    {
+        flag_read_compass_err = 1;
+        return -1;
+    }
+        
+
+    // uint8_t temp [6];
+    // int check = i2c_burst_read(ADDRESS_DEVICE_BE880, 0x00, 6, NUM_I2C_BE880, BE880_I2C_DMA_READ, temp);
     
-    if (check != 0)
-        return check;
-	else 
-		while (i2c_check_read_burst(NUM_I2C_BE880) != I2C_TRUE);
 
+    // if (check != 0)
+    //     return check;
+	// else
+	// 	while (i2c_check_read_burst(NUM_I2C_BE880) != I2C_TRUE);
 
-    ret->x = (int16_t)((temp_compass_i2c[1] << 8) | temp_compass_i2c[0]);
-    ret->y = (int16_t)((temp_compass_i2c[3] << 8) | temp_compass_i2c[2]);
-    ret->z = (int16_t)((temp_compass_i2c[5] << 8) | temp_compass_i2c[4]);
-#else
-    uint8_t temp [6];
-    int check = i2c_burst_read(ADDRESS_DEVICE_BE880, 0x00, 6, NUM_I2C_BE880, BE880_I2C_DMA_READ, temp);
-    
-
-    if (check != 0)
-        return check;
-	else
-		while (i2c_check_read_burst(NUM_I2C_BE880) != I2C_TRUE);
-
-    ret->x = (int16_t)((temp[1] << 8) | temp[0]);
-    ret->y = (int16_t)((temp[3] << 8) | temp[2]);
-    ret->z = (int16_t)((temp[5] << 8) | temp[4]);
-#endif
+    // ret->x = (int16_t)((temp[1] << 8) | temp[0]);
+    // ret->y = (int16_t)((temp[3] << 8) | temp[2]);
+    // ret->z = (int16_t)((temp[5] << 8) | temp[4]);
     
     return 0;
 }
@@ -134,9 +146,26 @@ int be880_read_compass_2_yaw(float roll, float pitch, float *ret)
     float sin_theta = sinf(pitch);
     float cos_theta = cosf(pitch);
     compass_data_t data;
+    uint8_t *temp;
     float mag_x_flat, mag_y_flat;
+    
+    if (i2c_check_read_burst(NUM_I2C_BE880) != I2C_TRUE)
+        return -1;
 
-    if (be880_read_compass(&data) != 0) return -1;
+    if (flag_read_compass_err)
+        return -1;
+
+    // if (be880_read_compass(&data) != 0) return -1;
+    if (flag_read_compass == 0)
+        temp = compass_data_ram + COMPASS_SIZE_READ;
+    else
+        temp = compass_data_ram;
+
+    // move data to struct
+    data.x = (int16_t)((temp[1] << 8) | temp[0]);
+    data.y = (int16_t)((temp[3] << 8) | temp[2]);
+    data.z = (int16_t)((temp[5] << 8) | temp[4]);
+
 
     mag_x_flat = data.x * cos_theta + data.y * sin_theta * sin_phi + data.z * sin_theta * cos_phi;
     mag_y_flat = data.y * cos_phi - data.z * sin_phi;
@@ -144,7 +173,22 @@ int be880_read_compass_2_yaw(float roll, float pitch, float *ret)
     *ret = atan2f(mag_y_flat, mag_x_flat);
 
     if (*ret > DRONE_Pi) *ret -= 2.0f * DRONE_Pi;
-    else if (*ret < DRONE_Pi) *ret += 2.0f * DRONE_Pi;
+    else if (*ret < -DRONE_Pi) *ret += 2.0f * DRONE_Pi;
 
     return 0;
+}
+
+void be880_init_yaw_compas(float *yaw_init_ref)
+{
+    float sum;
+    for (int i = 0;i < 10;i++)
+    {
+        float temp;
+        while (be880_send_cmd_read_compass() != 0);
+        while (i2c_check_read_burst(NUM_I2C_BE880) != I2C_TRUE);
+        be880_read_compass_2_yaw(0, 0, &temp);
+        sum += temp;
+        delay_ms(5);
+    }
+    *yaw_init_ref = sum/10;
 }

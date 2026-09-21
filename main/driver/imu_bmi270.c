@@ -15,6 +15,9 @@
 // bias
 volatile imu_data_t bias;
 
+// data for task
+// volatile imu_data_t data_bmi270;
+
 
 // change 0x69 if base on board address
 #define ADDRESS_DEVICE_BMI270           0x68
@@ -27,10 +30,10 @@ volatile imu_data_t bias;
 #define GPIO_PORT_BMI270                GPIO_PORT_B
 #define NUM_I2C_BMI270                  I2C_NUM_1
 
-#define MODE_I2C_SPEED_BMI270           I2C_MODE_100KHZ
+#define MODE_I2C_SPEED_BMI270           I2C_MODE_400KHZ
 
 
-#define BIAS_SAMPLE                     1000
+#define BIAS_SAMPLE                     100
 #define ACCZ_BIAS                       -4096.0f
 
 #define BMI270_RAW_2_U16(msb, lsb) \
@@ -481,6 +484,14 @@ const uint8_t bmi270_config_file[] =
 // this mode do not have gyr
 int bmi270_mode_low_power(void)
 {
+    // ACC_CONF
+    // disable acc_filter bit
+    // set acc_bwp to 2 repetitions, set acc_od to 50Hz
+    if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x40, 0x17, NUM_I2C_BMI270) == -1)
+        return -1;
+    
+    delay_ms(50);
+
     // PWR_CTRL
     // enable acquisition of accleration
     // disable auxiliary interface, gyroscope, temperature 
@@ -488,12 +499,6 @@ int bmi270_mode_low_power(void)
         return -1;
 
 
-    // ACC_CONF
-    // disable acc_filter bit
-    // set acc_bwp to 2 repetitions, set acc_od to 50Hz
-    if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x40, 0x17, NUM_I2C_BMI270) == -1)
-        return -1;
-    
     // PWR_CONF
     // enable adv_power_save bit
     if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x7C, 0x03, NUM_I2C_BMI270) == -1)
@@ -506,14 +511,6 @@ int bmi270_mode_low_power(void)
 
 int bmi270_mode_normal_power(void)
 {
-    // PWR_CTRL
-    // enable acquisition of accleration
-    // enable gyroscope, temperature 
-    // disable auxiliary interface,
-    if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x7D, 0x0E, NUM_I2C_BMI270) == -1)
-        return -1;
-
-
     // ACC_CONF
     // enable acc_filter bit
     // set acc_bwp to normal mode
@@ -527,6 +524,15 @@ int bmi270_mode_normal_power(void)
     // set gyr_bwp to normal mode
     // set gyr_odr to 200Hz
     if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x42, 0xA9, NUM_I2C_BMI270) == -1)
+        return -1;
+
+    delay_ms(50);
+
+    // PWR_CTRL
+    // enable acquisition of accleration
+    // enable gyroscope, temperature 
+    // disable auxiliary interface,
+    if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x7D, 0x0E, NUM_I2C_BMI270) == -1)
         return -1;
 
 
@@ -543,14 +549,6 @@ int bmi270_mode_normal_power(void)
 
 int bmi270_mode_high_power(void)
 {
-    // PWR_CTRL
-    // enable acquisition of accleration
-    // enable gyroscope, temperature 
-    // disable auxiliary interface,
-    if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x7D, 0x0E, NUM_I2C_BMI270) == -1)
-        return -1;
-
-
     // ACC_CONF
     // enable acc_filter bit
     // set acc_bwp to normal mode
@@ -567,6 +565,15 @@ int bmi270_mode_high_power(void)
     if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x42, 0xE9, NUM_I2C_BMI270) == -1)
         return -1;
 
+    delay_ms(50);
+
+    // PWR_CTRL
+    // enable acquisition of accleration
+    // enable gyroscope, temperature 
+    // disable auxiliary interface,
+    if(i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x7D, 0x0E, NUM_I2C_BMI270) == -1)
+        return -1;
+    
 
     // PWR_CONF
     // disable adv_power_save
@@ -593,7 +600,8 @@ int bmi270_init(bmi270_power_mode_t mode)
         .i2c_mode = MODE_I2C_SPEED_BMI270,
         .i2c_num = NUM_I2C_BMI270,
         .irq_en = I2C_FALSE,
-        .port = GPIO_PORT_BMI270
+        .port_scl = GPIO_PORT_BMI270,
+        .port_sda = GPIO_PORT_BMI270
     };
     i2c_init(cfg);
 
@@ -622,7 +630,7 @@ int bmi270_init(bmi270_power_mode_t mode)
         // complete config load
         if (i2c_write_reg(ADDRESS_DEVICE_BMI270, 0x59, 0x01, NUM_I2C_BMI270) == -1)
             continue;
-        delay_ms(1);
+        delay_ms(100);
         // check status init if fail then restart or sth
         // check bit 0
         if ((i2c_read_reg(ADDRESS_DEVICE_BMI270, 0x21, NUM_I2C_BMI270) & 0x01) != 1)
@@ -646,6 +654,8 @@ int bmi270_init(bmi270_power_mode_t mode)
         // break if success
         break;
     }
+
+    delay_ms(50);
 
     return 0;
 }
@@ -676,7 +686,7 @@ void bmi270_calib()
         bmi270_read(&temp, 1);
 #endif
 
-        delay_ms(10);
+        delay_ms(1);
         sum_gx += temp.gyrox;
         sum_gy += temp.gyroy;
         sum_gz += temp.gyroz;
@@ -710,10 +720,23 @@ void bmi270_calib()
 int bmi270_read_raw(uint8_t *ret, uint8_t wait_read_done)
 {
     int status = i2c_burst_read(ADDRESS_DEVICE_BMI270, ADDRESS_READ_DATA_BMI270, bmi270_size_read, NUM_I2C_BMI270, CHANNEL_DMA_READ_BMI270, ret);
+
+    if (status)
+        return status;
+
+    uint32_t i = GET_CURRENT_US() + 500;
     // wait read
     if (wait_read_done)
-        while (i2c_check_read_burst(NUM_I2C_BMI270) != I2C_TRUE);
-    return status;
+    {   
+        while (i2c_check_read_burst(NUM_I2C_BMI270) != I2C_TRUE)
+        {
+            // if this while run > 0.5ms break
+            if (GET_CURRENT_US() > i)
+                return -1;
+        }
+    }
+    
+    return 0;
 }
 
 
@@ -726,8 +749,8 @@ int bmi270_read(imu_data_digital_t *ret, uint8_t wait_read_done)
     // reset all data
     bmi270_data_t temp;
     *ret = (imu_data_digital_t){0};
-    uint8_t data[bmi270_size_read];
-    int status = bmi270_read_raw(data, wait_read_done);
+    static uint8_t data_temp [20];
+    int status = bmi270_read_raw(data_temp, wait_read_done);
 
     if (status)
         return status;
@@ -736,14 +759,14 @@ int bmi270_read(imu_data_digital_t *ret, uint8_t wait_read_done)
     // convert data -> ret
 
     // read accer
-    temp.acc_x = BMI270_RAW_2_U16(data[1], data[0]);
-    temp.acc_y = BMI270_RAW_2_U16(data[3], data[2]);
-    temp.acc_z = BMI270_RAW_2_U16(data[5], data[4]);
+    temp.acc_x = BMI270_RAW_2_U16(data_temp[1], data_temp[0]);
+    temp.acc_y = BMI270_RAW_2_U16(data_temp[3], data_temp[2]);
+    temp.acc_z = BMI270_RAW_2_U16(data_temp[5], data_temp[4]);
 
     // read gyro
-    temp.gyro_x = BMI270_RAW_2_U16(data[7], data[6]);
-    temp.gyro_y = BMI270_RAW_2_U16(data[9], data[8]);
-    temp.gyro_z = BMI270_RAW_2_U16(data[11], data[10]);
+    temp.gyro_x = BMI270_RAW_2_U16(data_temp[7], data_temp[6]);
+    temp.gyro_y = BMI270_RAW_2_U16(data_temp[9], data_temp[8]);
+    temp.gyro_z = BMI270_RAW_2_U16(data_temp[11], data_temp[10]);
 
 
 

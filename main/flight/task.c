@@ -49,7 +49,7 @@ static inline float clampf(float val, float min, float max)
 task_t TASK_DRONE [TASK_LENGTH] = 
 {
     {
-        .name_task = "sensor_handle",
+        .name_task = "imu_handle",
         .freq = 1000,
         .last_start_time = 0,
         .init_time_run = 2000,
@@ -61,7 +61,7 @@ task_t TASK_DRONE [TASK_LENGTH] =
         .name_task = "handle_rate",
         .freq = 1000,
         .last_start_time = 0,
-        .init_time_run = 2500,
+        .init_time_run = 2700,
         .last_stop_time = 0,
         .priority = TASK_REAL_TIME,
         .task = &task_handle_rate
@@ -70,18 +70,27 @@ task_t TASK_DRONE [TASK_LENGTH] =
         .name_task = "handle_attitude",
         .freq = 300,
         .last_start_time = 0,
-        .init_time_run = 2700,
+        .init_time_run = 2500,
         .last_stop_time = 0,
-        .priority = TASK_REAL_TIME,
+        .priority = 0,
         .task = &task_handle_attitude
     },
     {
-        .name_task = "handle_position",
-        .freq = 100,
+        .name_task = "handle_velocity",
+        .freq = 200,
         .last_start_time = 0,
-        .init_time_run = 1500,
+        .init_time_run = 1700,
         .last_stop_time = 0,
-        .priority = TASK_REAL_TIME,
+        .priority = 1,
+        .task = &task_handle_velocity
+    },
+    {
+        .name_task = "handle_position",
+        .freq = 50,
+        .last_start_time = 0,
+        .init_time_run = 1400,
+        .last_stop_time = 0,
+        .priority = 1,
         .task = &task_handle_position
     },
     {
@@ -90,7 +99,7 @@ task_t TASK_DRONE [TASK_LENGTH] =
         .last_start_time = 0,
         .init_time_run = 3300,
         .last_stop_time = 0,
-        .priority = 1,
+        .priority = 2,
         .task = &task_handle_compass
     },
     {
@@ -99,7 +108,7 @@ task_t TASK_DRONE [TASK_LENGTH] =
         .last_start_time = 0,
         .init_time_run = 3000,
         .last_stop_time = 0,
-        .priority = 1,
+        .priority = 2,
         .task = &task_handle_barometer
     },
 };
@@ -111,12 +120,17 @@ task_t TASK_DRONE [TASK_LENGTH] =
 /*
     flobal variable use in this file
 */
-#ifdef SIMULATION_ON
+
+// debug only
+volatile imu_data_t data_bmi270;
+volatile imu_data_digital_t data_digital_bmi270;
+
+//#ifdef SIMULATION_ON
 
 
-imu_data_t data_bmi270;
 
-#endif
+
+//#endif
 
 // use in esekf
 // block is 3x3
@@ -126,13 +140,13 @@ static matrix_esekf_t P[5][5];
 
 // varible ref for layer 1
 
-static float roll_ref = 0.0f;
-static float pitch_ref = 0.0f;
-static float yaw_ref = 0.0f;
+volatile float roll_ref = 0.0f;
+volatile float pitch_ref = 0.0f;
+volatile float yaw_ref = 0.0f;
 
-static float x_ref = 0.0f;
-static float y_ref = 0.0f;
-static float z_ref = 5.0f;
+volatile float x_ref = 0.0f;
+volatile float y_ref = 0.0f;
+volatile float z_ref = 0.0f;
 
 
 // variable ref for layer 2
@@ -148,7 +162,6 @@ static float yaw_rate_ref = 0.0f;
 
 //      ******* TEST ***** ONLY
 //  *********************** MUST DELETE WHEN DONE ****************************
-static float err = 0;
 
 
 
@@ -177,13 +190,20 @@ void task_handle_imu(task_data_t *data)
     drone_attitute.q = data_bmi270.gyroy;
     drone_attitute.r = data_bmi270.gyroz;
 #else
-    imu_data_t data_bmi270;
-    imu_data_digital_t data_digital_bmi270;
+    
+    //imu_data_t data_bmi270;
+    //imu_data_digital_t data_digital_bmi270;
     // read raw data rad/s
     bmi270_read(&data_digital_bmi270, 1);
     // tranfer to rad in gryo
-    bmi270_get_body_rate(&data_digital_bmi270, &drone_attitute);
+    //bmi270_get_body_rate(&data_digital_bmi270, &drone_attitute);
     bmi270_tranfer_using(&data_digital_bmi270, &data_bmi270);
+
+    // tranfer to attitude
+    drone_attitute.p = data_bmi270.gyrox;
+    drone_attitute.q = data_bmi270.gyroy;
+    drone_attitute.r = data_bmi270.gyroz;
+
 #endif
     quaternion_t temp_q = drone_quaternion;
 
@@ -313,11 +333,16 @@ void task_handle_rate(task_data_t *data)
 void task_handle_barometer(task_data_t *data)
 {
     float data_barometer;
+    int check;
     //barometer_dps310_read_2_height(&data_barometer);
 #ifdef SIMULATION_ON
     while (barometer_dps310_read_2_height(&data_barometer) != 0);
 #else
 
+    // check = barometer_dps310_read_2_height(&data_barometer);
+    // send_cmd_read_dps310();
+    // if (check != 0)
+    //     return;
 #endif
     esekf_update_with_barometer(P, data_barometer);
 }
@@ -327,10 +352,15 @@ void task_handle_compass(task_data_t *data)
 {
     float compass_yaw;
     float roll, pitch, yaw;
+    int check;
 
     quaternion_2_euler(&drone_quaternion, &roll, &pitch, &yaw);
     // handle error when read error
-    if (be880_read_compass_2_yaw(roll, pitch, &compass_yaw) != 0) return;
+    check = be880_read_compass_2_yaw(roll, pitch, &compass_yaw);
+    be880_send_cmd_read_compass();
+
+    if (check != 0)
+        return;
     
 #ifdef SIMULATION_ON
     test_yaw = compass_yaw;

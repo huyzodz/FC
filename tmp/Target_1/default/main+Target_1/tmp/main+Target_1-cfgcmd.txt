@@ -1,0 +1,1 @@
+cmd='C:/Users/ADMIN/.vcpkg/artifacts/2139c4c6/tools.kitware.cmake/3.31.12/bin/cmake.exe;-G;Ninja;-S;<SOURCE_DIR>;-B;<BINARY_DIR>;-DSOLUTION_ROOT=E:/K49 CTU tdh/Big_project/luanvan/FC;-DCMSIS_PACK_ROOT=C:/Users/ADMIN/AppData/Local/Arm/Packs;-DCMSIS_COMPILER_ROOT=C:/Users/ADMIN/.vscode/extensions/arm.cmsis-csolution-1.70.0-win32-x64/tools/cmsis-toolbox/etc'

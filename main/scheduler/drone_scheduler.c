@@ -3,8 +3,19 @@
 #include "task.h"
 #include <stddef.h>
 
+#ifdef SIMULATION_ON
+task_t *next_important_task = NULL;
+#endif
+
 // us
 #define OVERTIME_TASK_WAIT                  0
+
+// return
+// < 0 if a < b
+static inline int32_t compare(uint32_t a, uint32_t b)
+{
+    return (int32_t)(a - b);
+}
 
 static inline int8_t CHECK_READY_2_RUN(const task_t *task, task_t *next_important_task)
 {
@@ -17,12 +28,16 @@ static inline int8_t CHECK_READY_2_RUN(const task_t *task, task_t *next_importan
     else 
     {
         // check next time is task more important or not
-        //if ((next_important_task->expect_next_time_run - OVERTIME_TASK_WAIT) < )
-        if (1)
+        if (next_important_task != NULL && next_important_task != task)
         {
-            if (temp_time >= (task->expect_next_time_run - OVERTIME_TASK_WAIT) && temp_time < task->expect_next_time_run)
-                return 1; // let scheduler know to wait
+            if ((next_important_task->expect_next_time_run - OVERTIME_TASK_WAIT) < temp_time + task->excution_time_last_run)
+                // not run current task
+                return -1;
         }
+            
+        if (temp_time >= (task->expect_next_time_run - OVERTIME_TASK_WAIT) && temp_time < task->expect_next_time_run)
+            return 1; // let scheduler know to wait
+
         // ready to run
         return 0;
     }
@@ -72,12 +87,53 @@ void init_task(task_t *ret)
 
 
 
+task_t *handle_important_task(task_t *current_important_task, int i)
+{
+    // update next_important_task
+    if (current_important_task == NULL)
+        current_important_task = &TASK_DRONE[i];
+    else
+    {
+        // check if current important task next run time, sooner than current checking task
+        if (current_important_task->expect_next_time_run < TASK_DRONE[i].expect_next_time_run)
+        {
+            // check priority
+            // smaller => more important
+            if (current_important_task->priority > TASK_DRONE[i].priority)
+            {
+                // if this current important task priority is smaller than checking task
+                // check if current important task last excution 
+                if (current_important_task->excution_time_last_run + current_important_task->expect_next_time_run > TASK_DRONE[i].expect_next_time_run)
+                {
+                    // if next time run of current important task + excution task take > current checking task => switch important ptr
+                    current_important_task = &TASK_DRONE[i];
+                }
+            }
+        }
+        else
+        {
+            // if next time run later current checking
+            // check priority
+            if (current_important_task->priority > TASK_DRONE[i].priority)
+            {
+                // if prioroity current important task smaller then switch
+                current_important_task = &TASK_DRONE[i];
+            }
+        }
+    }
+    return current_important_task;
+}
+
+
 //                     ***************** FLIGHT HERE
 void FLIGHT_SYSTEM(void)
 {
+#ifndef SIMULATION_ON
     task_t *next_important_task = NULL;
+#endif
     //init_task(&TASK_DRONE[task_num]);
     START_SYSTEM_TIMER();
+
     while (1)
     {
         // run task here
@@ -98,9 +154,10 @@ void FLIGHT_SYSTEM(void)
                 // clear if current task is important task
                 if (next_important_task == &TASK_DRONE[i])
                     next_important_task = NULL;
-
-                // update next_important_task
             }
+            else
+                next_important_task = handle_important_task(next_important_task, i);
+            
             // else not run and check other task
         }
     }

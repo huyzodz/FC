@@ -6,19 +6,20 @@
 /*                              CHECK AGAIN D3 in covariance IF STH WRONG                 */
 
 
-#define SIGMA_V_SQUARE                  1.0f
-#define SIGMA_PHI_SQUARE                1.0f
-#define SIGMA_A_SQUARE                  1.0f
-#define SIGMA_W_SQUARE                  1.0f
+// test need to modify
+#define SIGMA_V_SQUARE                  1e-3f
+#define SIGMA_PHI_SQUARE                1e-4f
+#define SIGMA_A_SQUARE                  1e-6f
+#define SIGMA_W_SQUARE                  1e-7f
 
 
 float ax_w, ay_w, az_w;
 
 // struct for using in task
-volatile attitude_t drone_attitute;
-volatile velocity_t drone_velocity;
+volatile attitude_t drone_attitute = {0,0,0};
+volatile velocity_t drone_velocity = {0,0,0};
 volatile quaternion_t drone_quaternion = {1,0,0,0};
-volatile position_t drone_position;
+volatile position_t drone_position = {0,0,0};
 // use in esekf
 
 // matrix_esekf_t Qw[5][5];
@@ -216,15 +217,17 @@ static inline void update_norminal_state(float x[15])
     drone_quaternion.y = q_new.y / q_norm;
     drone_quaternion.z = q_new.z / q_norm;
 
-    // update bias gyro
-    bias.gyrox += x[9];
-    bias.gyroy += x[10];
-    bias.gyroz += x[11];
-
     // update bias acc
-    bias.accx += x[12];
-    bias.accy += x[13];
-    bias.accz += x[14];
+    bias.accx += x[9];
+    bias.accy += x[10];
+    bias.accz += x[11];
+
+    // update bias gyro
+    bias.gyrox += x[12];
+    bias.gyroy += x[13];
+    bias.gyroz += x[14];
+
+    
 }
 
 
@@ -729,6 +732,8 @@ void esekf_update_with_barometer(matrix_esekf_t P[5][5], float height)
     
 
     // update 
+    //drone_position.z += x_hat[2];
+    //drone_velocity.vz += x_hat[5];
     update_norminal_state(x_hat);
 }
 
@@ -739,8 +744,12 @@ void esekf_update_with_compass(matrix_esekf_t P[5][5], float compass_yaw, float 
     float K[15];
     float x_hat[15];
     float err_z = compass_yaw - yaw;
+    // wrap yaw
+    if (err_z > DRONE_Pi) err_z -= 2.0f * DRONE_Pi;
+    else if (err_z < -DRONE_Pi) err_z += 2.0f * DRONE_Pi;
     float P_tempz[15];
-    quaternion_t q_temp;
+    quaternion_t q_temp, q_new;
+    float q_norm;
 
     // (H*P*H' + V)^-1
     temp = (float)1.0f/(P[2][2].data[2][2] + V);
@@ -778,6 +787,29 @@ void esekf_update_with_compass(matrix_esekf_t P[5][5], float compass_yaw, float 
 
     
     // update
-    update_norminal_state(x_hat);
+    // q_temp.w = 1.0f;
+    // q_temp.x = x_hat[6] * 0.5f;
+    // q_temp.y = x_hat[7] * 0.5f;
+    // q_temp.z = x_hat[8] * 0.5f;
 
+    // // normalize
+    // q_norm = sqrtf(q_temp.w*q_temp.w + q_temp.x*q_temp.x + q_temp.y*q_temp.y + q_temp.z*q_temp.z);
+
+    // q_temp.w /= q_norm;
+    // q_temp.x /= q_norm;
+    // q_temp.y /= q_norm;
+    // q_temp.z /= q_norm;
+
+    // q_new.w = drone_quaternion.w * q_temp.w - drone_quaternion.x * q_temp.x - drone_quaternion.y * q_temp.y - drone_quaternion.z * q_temp.z;
+    // q_new.x = drone_quaternion.w * q_temp.x + drone_quaternion.x * q_temp.w + drone_quaternion.y * q_temp.z - drone_quaternion.z * q_temp.y;
+    // q_new.y = drone_quaternion.w * q_temp.y - drone_quaternion.x * q_temp.z + drone_quaternion.y * q_temp.w + drone_quaternion.z * q_temp.x;
+    // q_new.z = drone_quaternion.w * q_temp.z + drone_quaternion.x * q_temp.y - drone_quaternion.y * q_temp.x + drone_quaternion.z * q_temp.w;
+
+    // // normalize new q
+    // q_norm = sqrtf(q_new.w*q_new.w + q_new.x*q_new.x + q_new.y*q_new.y + q_new.z*q_new.z);
+    // drone_quaternion.w = q_new.w / q_norm;
+    // drone_quaternion.x = q_new.x / q_norm;
+    // drone_quaternion.y = q_new.y / q_norm;
+    // drone_quaternion.z = q_new.z / q_norm;
+    update_norminal_state(x_hat);
 }

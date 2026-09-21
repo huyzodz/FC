@@ -498,6 +498,11 @@
               <FileType>1</FileType>
               <FilePath>.\lib\timer.c</FilePath>
             </File>
+            <File>
+              <FileName>spi_master.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\spi_master.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -517,6 +522,11 @@
               <FileName>test_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\test\test_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>test_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\test\test_spi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -611,11 +621,6 @@
               <FileName>rasp_com.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main\driver\rasp_com.c</FilePath>
-            </File>
-            <File>
-              <FileName>barometer_dps310.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main\driver\barometer_dps310.c</FilePath>
             </File>
             <File>
               <FileName>gps_be880.c</FileName>

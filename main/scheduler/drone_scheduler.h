@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#include "define_sim.h"
+
+
 #define CALCULATE_DT(time, task)            ((float)(time - (task.last_start_time))/1e6)
 
 
@@ -48,8 +51,13 @@ struct task_t{
     void (*run)(task_t *);
     char *name_task;
     int8_t priority;
+    // this will increse if task being skip
+    int8_t starved;
 };
 
+#ifdef SIMULATION_ON
+extern task_t *next_important_task;
+#endif
 
 void init_task(task_t *ret);
 

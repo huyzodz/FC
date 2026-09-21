@@ -85,6 +85,7 @@ void usart_gpio_init(uint8_t pin_tx, uint8_t pin_rx, gpio_port port)
     gpio_config_t tx = {
         .alternate = AF7,
         .gpio = port,
+        .pull = reserved,
         .mode = GPIO_ALTERNATE_OUTPUT_PUSH_PULL,
         .OutSpeed = high_speed,
         .pinNum = pin_tx
@@ -92,6 +93,7 @@ void usart_gpio_init(uint8_t pin_tx, uint8_t pin_rx, gpio_port port)
     gpio_config_t rx = {
         .alternate = AF7,
         .gpio = port,
+        .pull = reserved,
         .mode = GPIO_ALTERNATE_INPUT_PULL_UP,
         .pinNum = pin_rx
     };

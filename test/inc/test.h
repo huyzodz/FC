@@ -3,6 +3,7 @@
 
 
 void test_task(void);
+void test_spi(void);
 
 
 #endif

@@ -14,7 +14,7 @@ uint8_t acc_conf, acc_range, gyr_conf, gyr_range;
 
 void test_bmi270(void)
 {
-    bmi270_calib();
+    //bmi270_calib();
 
 
     while (1)

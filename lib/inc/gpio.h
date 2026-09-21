@@ -61,9 +61,18 @@ typedef enum {
     very_high_speed
 } gpio_output_speed;
 
+
+typedef enum {
+    no_pull = 0,
+    pull_up,
+    pull_down,
+    reserved
+} gpio_pull_t;
+
 typedef struct {
     gpio_port gpio;
     uint8_t pinNum;
+    gpio_pull_t pull;
     gpio_mode mode;
     alternate_mode alternate; // write AF0 if not use
     gpio_output_speed OutSpeed;

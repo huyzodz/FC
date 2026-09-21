@@ -6,10 +6,10 @@
 
 /******/
 // K = (2000/32768)*pi/180
-#define BMI270_GYRO_2_RAD(val)      ((float)val*0.00106526f)
+#define BMI270_GYRO_2_RAD(val)      ((float)(val)*0.00106526f)
 
-//  (2.0f * 9.80665f / 4096.0f)
-#define BMI270_ACC_2_MS2(val)       ((float)val*0.00239467f)
+//  (9.80665f / 4096.0f)
+#define BMI270_ACC_2_MS2(val)       ((float)(val)*0.00239467f)
 
 typedef enum {
     BMI270_LOW_POWER_MODE = 0,
@@ -53,6 +53,8 @@ typedef struct {
 // bias
 extern volatile imu_data_t bias;
 
+// extern volatile imu_data_t data_bmi270;
+
 
 
 
@@ -63,7 +65,7 @@ int bmi270_read(imu_data_digital_t *ret, uint8_t wait_read_done);
 
 
 void bmi270_calib();
-
+// void bmi270_tranfer_using(const imu_data_digital_t *data, imu_data_t *ret);
 
 static inline void bmi270_get_body_rate(const imu_data_digital_t *data, attitude_t *ret)
 {

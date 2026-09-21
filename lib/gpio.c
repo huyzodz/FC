@@ -8,6 +8,7 @@ void gpio_init(gpio_config_t *handle)
     gpio_mode mode = handle->mode;
     alternate_mode ALmode = handle->alternate;
     gpio_output_speed speed = handle->OutSpeed;
+    gpio_pull_t pull = handle->pull;
 
     /* turn on clock use for gpio */
     RCC->AHB4ENR |= (1 << (((uint32_t)p - (uint32_t)GPIOA)/1024));
@@ -28,6 +29,15 @@ void gpio_init(gpio_config_t *handle)
         {
             /* AFRH */
             AF = &p->AFR[1];
+        }
+
+        // check pull
+        if (pull != reserved)
+        {
+            // reset
+            p->PUPDR &= ~(0x03 << (pinNum*2));
+            // pull
+            p->PUPDR |= (pull << (pinNum*2));
         }
         
         /* reset mode */

@@ -5,5 +5,4 @@
   main\flight\drone.h simulation\define_sim.h \
   main\scheduler\drone_scheduler.h main\flight\task.h \
   main\flight\esekf.h main\driver\barometer_dps310.h \
-  main\driver\gps_be880.h main\flight\pid.h main\flight\smc.h \
-  simulation\simulate.h main\flight\mixer.h
+  main\driver\gps_be880.h main\flight\pid.h main\flight\smc.h

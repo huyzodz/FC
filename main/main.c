@@ -56,8 +56,9 @@ void test(void)
 
     //test_i2c();
     //test_bmi270();
-    test_task();
+    // test_task();
     //test_simulation();
+    test_spi();
 }
 
 int main(void)

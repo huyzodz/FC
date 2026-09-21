@@ -3,27 +3,29 @@
 
 #include "drone_scheduler.h"
 #include "drone.h"
-
-#ifdef SIMULATION_ON
-
 #include "esekf.h"
 
-#endif
 
+#define TASK_LENGTH                     7
 
-//#define TASK_LENGTH                     7
-#define TASK_LENGTH                     6
 
 
 extern task_t TASK_DRONE [TASK_LENGTH];
 
+volatile extern imu_data_t data_bmi270;
+volatile extern imu_data_digital_t data_digital_bmi270;
 
-#ifdef SIMULATION_ON
+
+volatile extern float x_ref;
+volatile extern float y_ref;
+volatile extern float z_ref;
+
+volatile extern float roll_ref;
+volatile extern float pitch_ref;
+volatile extern float yaw_ref;
 
 
-extern imu_data_t data_bmi270;
 
-#endif
 
 
 
@@ -50,7 +52,6 @@ void task_handle_compass(task_data_t *data);
 //fix error for z
 void task_handle_barometer(task_data_t *data);
 
-// background
 
 void task_handle_gps(task_data_t *data);
 void task_handle_rasp(task_data_t *data);

@@ -1,0 +1,130 @@
+project:
+  packs:
+    - pack: Keil::ARM_Compiler@^1.7.2
+    - pack: ARM::CMSIS@^5.9.0
+    - pack: ARM::CMSIS-DSP@^1.14.2
+    - pack: ARM::CMSIS-Driver@^2.7.2
+    - pack: ARM::CMSIS-NN@^4.0.0
+    - pack: Keil::MDK-Middleware@^7.16.0
+    - pack: Keil::STM32F1xx_DFP@^2.4.1
+    - pack: Keil::STM32H7xx_DFP@3.1.1
+    - pack: Keil::MDK-Middleware_Graphics@^1.3.1
+  setups:
+    - setup: Options for Target_1
+      processor:
+        fpu: dp
+      add-path:
+        - test/inc
+        - main
+        - lib/inc
+        - main/driver
+        - main/flight
+        - main/scheduler
+        - main/system
+        - simulation
+      debug: "on"
+      misc:
+        - C:
+            - -std=c99
+          C-CPP:
+            - -fno-rtti
+            - -funsigned-char
+            - -fshort-enums
+            - -fshort-wchar
+            - -ffunction-sections
+            - -Wall
+            - -Wextra
+            - -Wno-packed
+            - -Wno-reserved-id-macro
+            - -Wno-unused-macros
+            - -Wno-documentation-unknown-command
+            - -Wno-documentation
+            - -Wno-license-management
+            - -Wno-parentheses-equality
+            - -Wno-sign-conversion -w
+          CPP:
+            - -xc++
+            - -std=c++98
+            - -fno-exceptions
+          ASM:
+            - -masm=auto
+          Link:
+            - --map
+            - --load_addr_map_info
+            - --xref
+            - --callgraph
+            - --symbols
+            - --info sizes
+            - --info totals
+            - --info unused
+            - --info veneers
+            - --strict
+            - --summary_stderr
+            - --info summarysizes
+  linker:
+    - script: main_Target_1.sct
+  groups:
+    - group: main
+      files:
+        - file: main/main.c
+    - group: lib
+      optimize: none
+      misc:
+        - CPP:
+            - -xc++
+            - -fno-exceptions
+      files:
+        - file: lib/clock.c
+        - file: lib/dma.c
+        - file: lib/dshot.c
+        - file: lib/gpio.c
+        - file: lib/i2c_master.c
+        - file: lib/usart.c
+        - file: lib/timer.c
+        - file: lib/spi_master.c
+    - group: test
+      files:
+        - file: test/test_i2c.c
+        - file: test/test_bmi270.c
+        - file: test/test_task.c
+        - file: test/test_spi.c
+    - group: system
+      files:
+        - file: main/system/init.c
+    - group: driver
+      optimize: speed
+      misc:
+        - CPP:
+            - -xc++
+            - -fno-exceptions
+      files:
+        - file: main/driver/imu_bmi270.c
+        - file: main/driver/rasp_com.c
+        - file: main/driver/gps_be880.c
+    - group: flight
+      optimize: speed
+      misc:
+        - CPP:
+            - -xc++
+            - -fno-exceptions
+      files:
+        - file: main/flight/esekf.c
+        - file: main/flight/pid.c
+        - file: main/flight/smc.c
+        - file: main/flight/drone.c
+        - file: main/flight/task.c
+        - file: main/flight/mixer.c
+    - group: scheduler
+      optimize: speed
+      misc:
+        - CPP:
+            - -xc++
+            - -fno-exceptions
+      files:
+        - file: main/scheduler/drone_scheduler.c
+    - group: simulation
+      files:
+        - file: simulation/simulate.c
+  components:
+    - component: ARM::CMSIS:CORE
+    - component: Keil::Device:Startup

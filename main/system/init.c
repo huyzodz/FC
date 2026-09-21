@@ -46,14 +46,14 @@ void phase_2_init(void)
     simulation_init();
 #else
     // init bmi270
-    bmi270_init(BMI270_NORMAL_POWER_MODE);
+    //bmi270_init(BMI270_NORMAL_POWER_MODE);
 	delay_ms(10);
     // init rasp_com
     rasp_com_init();
 	delay_ms(100);
 #endif
-    gps_be880_init(BE880_HAS_COMPASS);
-    barometer_dps310_init();
+    //gps_be880_init(BE880_HAS_COMPASS);
+    //barometer_dps310_init();
 }
 
 void phase_3_init(void)
@@ -129,6 +129,8 @@ void phase_3_init(void)
 
     // calib
     bmi270_calib();
+
+    be880_init_yaw_compas(&yaw_ref);
 }
 
 
@@ -138,8 +140,8 @@ void system_init(void)
     phase_1_init();
 
     // second init this init for driver and sensor and some peripheral..
-    phase_2_init();
+    //phase_2_init();
 
     // third init this init for controller system and task
-    phase_3_init();
+    //phase_3_init();
 }

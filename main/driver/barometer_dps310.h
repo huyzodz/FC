@@ -4,6 +4,8 @@
 
 void barometer_dps310_init(void);
 
+// return -1 if err
+int send_cmd_read_dps310(void);
 int barometer_dps310_read_2_height(float *ret);
 
 
