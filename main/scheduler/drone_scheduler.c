@@ -73,8 +73,13 @@ inline void update_task(task_t *ret, uint32_t start_time)
     }
     ret->last_start_time = start_time;
     // expeted next time to run
-    ret->expect_next_time_run += ret->period; // us
     ret->last_stop_time = GET_CURRENT_US();
+
+    // ret->expect_next_time_run += ret->period; // us
+    // handle if late for net period too much
+    ret->expect_next_time_run += (ret->period * (ret->last_stop_time/ret->expect_next_time_run + 1));
+
+
     ret->excution_time_last_run = ret->last_stop_time - start_time;
 }
 

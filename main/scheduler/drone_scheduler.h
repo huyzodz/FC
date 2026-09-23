@@ -51,8 +51,9 @@ struct task_t{
     void (*run)(task_t *);
     char *name_task;
     int8_t priority;
+
     // this will increse if task being skip
-    int8_t starved;
+    int8_t starving;
 };
 
 #ifdef SIMULATION_ON

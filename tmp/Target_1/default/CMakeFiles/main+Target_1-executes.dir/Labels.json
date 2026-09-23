@@ -1,0 +1,40 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1-executes"
+		},
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1-executes.rule"
+		},
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-executes.rule"
+		},
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-build.rule"
+		},
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-configure.rule"
+		},
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-patch.rule"
+		},
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-update.rule"
+		},
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-download.rule"
+		},
+		{
+			"file" : "E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-mkdir.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"main+Target_1"
+		],
+		"name" : "main+Target_1-executes"
+	}
+}

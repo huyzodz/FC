@@ -1,0 +1,16 @@
+# Target labels
+ main+Target_1
+# Source files and their labels
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1-complete.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-build.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-configure.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-database.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-download.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-executes.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-install.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-mkdir.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-patch.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-test.rule
+E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/main+Target_1/src/main+Target_1-stamp/main+Target_1-update.rule

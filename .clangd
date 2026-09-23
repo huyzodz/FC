@@ -1,0 +1,10 @@
+CompileFlags:
+  CompilationDatabase: e:\K49 CTU tdh\Big_project\luanvan\FC\out\main\Target_1
+
+---
+If:
+  PathMatch: .*\.(c|C|h)$
+CompileFlags:
+  Add:
+    - -include
+    - e:\K49 CTU tdh\Big_project\luanvan\FC\out\main\Target_1\compile_macros_c.h
