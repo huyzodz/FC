@@ -1,8 +1,9 @@
 #include "spi_master.h"
 #include "timer.h"
 #include "stm32h750vbt6.h"
+#include <stdint.h>
 
-#define MAX_WAY                     1000000
+#define MAX_WAY                     9000000
 
 #define SPI_TURN_SPE_OFF(ptr)       ((ptr)->CR1 &= ~0x01)
 #define SPI_TURN_SPE_ON(ptr)        ((ptr)->CR1 |= 0x01)
@@ -14,6 +15,13 @@
 
 #define HALF_DUPLEX_TX(ptr)         ((ptr)->CR1 |= (0x01 << 11))
 #define HALF_DUPLEX_RX(ptr)         ((ptr)->CR1 &= ~(0x01 << 11))
+
+#define SPI_RESET_COM(ptr)          ((ptr)->CFG2 &= ~(0x03 << 17))
+#define SPI_SET_TX_COM(ptr)         ((ptr)->CFG2 |= (0x01 << 17))
+#define SPI_SET_RX_COM(ptr)         ((ptr)->CFG2 |= (0x02 << 17))
+
+#define SPI_DIS_DMA_RX(ptr)         ((ptr)->CFG1 &= ~(0x01 << 14))
+#define SPI_EN_DMA_RX(ptr)          ((ptr)->CFG1 |= (0x01 << 14))
 
 
 #define SPI_CLEAR_EOT_FLAG(ptr)     ((ptr)->IFCR |= (0x01 << 3))
@@ -64,6 +72,7 @@ static inline void spi_irq_callback(spi_num_t num)
     if (((ptr->SR >> 9) & 0x01) == 0x01)
         flag.mode_fault = SPI_TRUE;
 
+    // check overun er
     if (((ptr->SR >> 6) & 0x01) == 0x01)
         flag.overun_err = SPI_TRUE;
 
@@ -71,8 +80,11 @@ static inline void spi_irq_callback(spi_num_t num)
     flag.data = handle.data;
 
     // clear flag
-    SPI_CLEAR_ALL_FLAG(ptr);
-
+    SPI_CLEAR_OVR_FLAG(ptr);
+    SPI_CLEAR_EOT_FLAG(ptr);
+    SPI_CLEAR_TXTF_FLAG(ptr);
+    SPI_CLEAR_CRCE_FLAG(ptr);
+    SPI_CLEAR_MODF_FLAG(ptr);
 
     // call function user define
     if (handle.cb)
@@ -149,13 +161,21 @@ void spi_error_recovery(spi_num_t num)
 {
     SPI_TypeDef *ptr = spi_arr_glb[num];
     SPI_TURN_SPE_OFF(ptr);
+
+    SPI_DIS_DMA_RX(ptr);
+
     // clear all flag
     SPI_CLEAR_ALL_FLAG(ptr);
     
     // fix err for dma if need
 
+    // check if in read err
+    while (((ptr->SR >> 15) & 0x01) == 0x01 || ((ptr->SR >> 13) & 0x03) != 0)
+    {
+        volatile uint32_t dump = ptr->RXDR;
+    }
 
-    // set tsize
+    // reset tsize
     SPI_ERASE_TSIZE(ptr);
     // TURN_ON_SPI(ptr);
 }
@@ -177,9 +197,9 @@ static inline void spi_close_transfer(SPI_TypeDef *ptr)
 
     // turn off spi
     SPI_TURN_SPE_OFF(ptr);
-    
+     
     // reset tsize
-    SPI_ERASE_TSIZE(ptr);
+    // SPI_ERASE_TSIZE(ptr);
 }
 
 void spi_callback_handle(void *arg)
@@ -188,6 +208,8 @@ void spi_callback_handle(void *arg)
     spi_num_t *num = (spi_num_t*)data->data;
     SPI_TypeDef *ptr = spi_arr_glb[*num];
 
+    // dump read
+    uint32_t dmup = ptr->RXDR;
     // err
     if (data->error_flag)
     {   
@@ -198,10 +220,14 @@ void spi_callback_handle(void *arg)
     
     if (data->complete_flag)
     {
+        SPI_CHECK_READ_BURST[*num] = SPI_TRUE;
+        spi_irq_callback(*num);
         // clear flag if need
         SPI_CLEAR_ALL_FLAG(ptr);
-        SPI_CHECK_READ_BURST[*num] = SPI_TRUE;
     }   
+
+    // disable dma
+    SPI_DIS_DMA_RX(ptr);
 
     spi_close_transfer(ptr);
     dma_stop(spi_dma_num_glb[*num]);
@@ -210,6 +236,7 @@ void spi_callback_handle(void *arg)
 void spi_dma_init(spi_master_config_t cfg)
 {
     spi_num_t num = cfg.spi_num;
+
     dma_config_t dma_rx = {
         .dma_channel = cfg.dma_read,
         .dma_cir_mode = DMA_FALSE,
@@ -220,23 +247,50 @@ void spi_dma_init(spi_master_config_t cfg)
         .dma_per_increse = DMA_FALSE,
         .dma_per_size = BYTE_8_BIT,
         .dma_priority = VERY_HIGH,
-        .dma_tranfer_direction = PER_TO_MEM
+        .dma_tranfer_direction = PER_TO_MEM,
     };
+
+    // dma_config_t dma_tx = {
+    //     .dma_channel = cfg.dma_write,
+    //     .dma_cir_mode = DMA_FALSE,
+    //     .dma_interupt_enable = DMA_TRUE,
+    //     .complete_tranfer_intr = DMA_TRUE,
+    //     .dma_mem_increse = DMA_TRUE,
+    //     .dma_mem_size = BYTE_8_BIT,
+    //     .dma_per_increse = DMA_FALSE,
+    //     .dma_per_size = BYTE_8_BIT,
+    //     .dma_priority = VERY_HIGH,
+    //     .dma_tranfer_direction = MEM_TO_PER,
+    // };
 
 
     /* check i2c that match dma request */
     if (num == SPI_NUM_1)
+    {
         dma_rx.dma_request = SPI1_RX_DMA;
+        // dma_tx.dma_request = SPI1_TX_DMA;
+    }
     else if (num == SPI_NUM_2)
+    {
         dma_rx.dma_request = SPI2_RX_DMA;
+        // dma_tx.dma_request = SPI2_TX_DMA;
+    }
     else if (num == SPI_NUM_3)
+    {
         dma_rx.dma_request = SPI3_RX_DMA;
+        // dma_tx.dma_request = SPI3_TX_DMA;
+    }
     else if (num == SPI_NUM_4)
+    {
         dma_rx.dma_request = SPI4_RX_DMA;
+        // dma_tx.dma_request = SPI4_TX_DMA;
+    }
+        
 
 
     // init dma
     dma_init(dma_rx);
+    // dma_init(dma_tx);
 
     spi_dma_num_glb[num] = cfg.dma_read;
 
@@ -281,7 +335,7 @@ void spi_gpio_init(spi_master_config_t cfg)
         // miso
         gpio_config_t miso = {
             .alternate = alMode,
-            .mode = GPIO_ALTERNATE_INPUT_PULL_UP,
+            .mode = GPIO_ALTERNATE_OUTPUT_PUSH_PULL,
             .gpio = cfg.port_miso,
             .pull = reserved,
             .pinNum = cfg.gpio_miso,
@@ -357,7 +411,7 @@ void spi_master_init(spi_master_config_t cfg)
     ptr->CFG1 &= ~(1 << 15);
 
     // enable dma rx
-    ptr->CFG1 |= (1 << 14);
+    // ptr->CFG1 |= (1 << 14);
 
     // use 8 bit
     ptr->CFG1 &= ~(0x1F); // reset
@@ -366,7 +420,7 @@ void spi_master_init(spi_master_config_t cfg)
     // CFG2
     ptr->CFG2 &= ~(1 << 29); //dis SSOE
     ptr->CFG2 |= (1 << 30); // en SSOM
-    ptr->CFG2 |= (1 << 31); // en for peripheral control gpio
+    ptr->CFG2 &= ~(1 << 31); // dis for peripheral control gpio
 
     // first clock is first data
     // MSB first
@@ -394,35 +448,35 @@ void spi_master_init(spi_master_config_t cfg)
 
  
 
-    // init dma for read only
+    // init dma 
     if (cfg.mode_com != SPI_SIMPLEX_TX)
         spi_dma_init(cfg);
-
+    
 
     // if irq enable
     if (cfg.spi_irq_en == SPI_TRUE)
     {
         // en eot/txc/ susp irq
-        ptr->IER |= (1 << 3);
+        // ptr->IER |= (1 << 3);
 
-        // irq for crc check
-        ptr->IER |= (1 << 7);
+        // // irq for crc check
+        // ptr->IER |= (1 << 7);
 
-        // mode fault irq
-        ptr->IER |= (1 << 9);
+        // // mode fault irq
+        // ptr->IER |= (1 << 9);
 
-        // overun error irq
-        ptr->IER |= (1 << 6);
+        // // overun error irq
+        // ptr->IER |= (1 << 6);
 
         // enable NVIC 
-        if (num == SPI_NUM_1)
-            NVIC_EnableIRQ(SPI1_IRQn);
-        if (num == SPI_NUM_2)
-            NVIC_EnableIRQ(SPI2_IRQn);    
-        if (num == SPI_NUM_3)
-            NVIC_EnableIRQ(SPI3_IRQn);
-        if (num == SPI_NUM_4)
-            NVIC_EnableIRQ(SPI4_IRQn);
+        // if (num == SPI_NUM_1)
+        //     NVIC_EnableIRQ(SPI1_IRQn);
+        // if (num == SPI_NUM_2)
+        //     NVIC_EnableIRQ(SPI2_IRQn);    
+        // if (num == SPI_NUM_3)
+        //     NVIC_EnableIRQ(SPI3_IRQn);
+        // if (num == SPI_NUM_4)
+        //     NVIC_EnableIRQ(SPI4_IRQn);
     }
 }
 
@@ -432,7 +486,7 @@ void spi_add_calback(spi_callback_t cb, void *data, spi_num_t num)
     spi_cb_table_glb[num].data = data;
 }
 
-int spi_half_write(spi_num_t num, uint16_t length, uint8_t *data)
+int spi_write(spi_num_t num, uint16_t length, uint8_t *data, spi_mode_com_t mode)
 {
     SPI_TypeDef *ptr = spi_arr_glb[num];
     // wait last flag tranfer
@@ -441,19 +495,26 @@ int spi_half_write(spi_num_t num, uint16_t length, uint8_t *data)
         goto err_handle;
     
     // check 
-    // err when it in simplex rx
-    if (((ptr->CFG2 >> 17) & 0x03) == 0x02)
-        return -1;
 
     // switch
-    if (((ptr->CR1 >> 11) & 0x01) != 0x01)
+    SPI_TURN_SPE_OFF(ptr);
+    if (mode == SPI_HALF_DUPLEX)
     {
-        // switch to tx
-        SPI_TURN_SPE_OFF(ptr);
-        HALF_DUPLEX_TX(ptr);
+        if (((ptr->CR1 >> 11) & 0x01) != 0x01)
+            // switch to tx
+            HALF_DUPLEX_TX(ptr);
+    }
+    else
+    {
+        // clear mode come of CFG2
+        SPI_RESET_COM(ptr);
+        SPI_SET_TX_COM(ptr);
     }
 
+    
+
     // set tsize
+    SPI_ERASE_TSIZE(ptr);
     SPI_SET_TSIZE(ptr, length);
 
     // turn on spi
@@ -490,44 +551,76 @@ err_handle:
     return -1;
 }
 
-int spi_half_read(spi_num_t num, uint16_t length, uint8_t *ret)
+int spi_read(spi_num_t num, uint16_t length, uint8_t *ret, spi_mode_com_t mode)
 {
     SPI_TypeDef *ptr = spi_arr_glb[num];
     dma_mux1_channel_t dma_num = spi_dma_num_glb[num];
     // check 
-    // err when it in simplex tx
-    if (((ptr->CFG2 >> 17) & 0x03) == 0x01)
-        return -1;
 
     // check switch to read
-    if (((ptr->CR1 >> 11) & 0x01) == 0x01)
+    SPI_TURN_SPE_OFF(ptr);
+    if (mode == SPI_HALF_DUPLEX)
     {
-        SPI_TURN_SPE_OFF(ptr);
-        HALF_DUPLEX_RX(ptr);
+        if (((ptr->CR1 >> 11) & 0x01) == 0x01)
+            HALF_DUPLEX_RX(ptr);
+    }
+    else 
+    {
+        // change com
+        SPI_RESET_COM(ptr);
+        SPI_SET_RX_COM(ptr);
+    }
+	
+	// // check if still have data in fifo
+    while (((ptr->SR >> 15) & 0x01) == 0x01 || ((ptr->SR >> 13) & 0x03) != 0)
+    {
+        volatile uint32_t dump = ptr->RXDR;
     }
 
-    // reset flag
-    SPI_CHECK_READ_BURST[num] = SPI_FALSE;
-
+    
     // set size
+    SPI_ERASE_TSIZE(ptr);
     SPI_SET_TSIZE(ptr, length);
 
+    
+    if (length > 1)
+    {   
+        SPI_EN_DMA_RX(ptr);
+
+		// reset flag
+		SPI_CHECK_READ_BURST[num] = SPI_FALSE;
+		
+        // setting dma
+        dma_SetAddr((uint8_t*)&ptr->RXDR, (uint8_t*)ret, length, dma_num);
+
+        // start dma
+        dma_start(dma_num);
+    }
+    
     // turn on spi
     SPI_TURN_SPE_ON(ptr);
-
-    // setting dma
-    dma_SetAddr((uint8_t*)&ptr->RXDR, (uint8_t*)ret, length, dma_num);
-
-    // start dma
-    dma_start(dma_num);
 
     // cstart
     SPI_SET_CSTART(ptr);
 
+    if (length == 1)
+    {
+        if (wait_recieve(ptr) != 0)
+            goto err_handle;
+        
+        *ret = *(__IO uint8_t*)&ptr->RXDR;
+
+        spi_close_transfer(ptr);
+    }
+
     return 0;
+
+err_handle:
+    spi_error_recovery(num);
+    return -1;
 }
 
-int spi_half_check_read(spi_num_t num)
+int spi_check_read(spi_num_t num)
 {
     return SPI_CHECK_READ_BURST[num];
 }
@@ -542,23 +635,23 @@ int spi_half_check_read(spi_num_t num)
 
             /*                  IRQ here                */
 
-void SPI1_IRQHandler(void)
-{
-    spi_irq_callback(SPI_NUM_1);
-}
+// void SPI1_IRQHandler(void)
+// {
+//     spi_irq_callback(SPI_NUM_1);
+// }
 
-void SPI2_IRQHandler(void)
-{
-    spi_irq_callback(SPI_NUM_2);
-}
+// void SPI2_IRQHandler(void)
+// {
+//     spi_irq_callback(SPI_NUM_2);
+// }
 
-void SPI3_IRQHandler(void)
-{
-    spi_irq_callback(SPI_NUM_3);
-}
+// void SPI3_IRQHandler(void)
+// {
+//     spi_irq_callback(SPI_NUM_3);
+// }
 
-void SPI4_IRQHandler(void)
-{
-    spi_irq_callback(SPI_NUM_4);
-}
+// void SPI4_IRQHandler(void)
+// {
+//     spi_irq_callback(SPI_NUM_4);
+// }
 

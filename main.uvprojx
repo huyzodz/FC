@@ -627,6 +627,11 @@
               <FileType>1</FileType>
               <FilePath>.\main\driver\gps_be880.c</FilePath>
             </File>
+            <File>
+              <FileName>barometer_dps310.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\driver\barometer_dps310.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

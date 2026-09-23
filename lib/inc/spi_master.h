@@ -76,6 +76,7 @@ typedef struct {
     uint8_t gpio_cs;
 
     dma_mux1_channel_t dma_read;
+    // dma_mux1_channel_t dma_write;
 
     spi_bool_t enable_crc;
     uint8_t crc_size;
@@ -96,13 +97,13 @@ void spi_master_init(spi_master_config_t cfg);
 void spi_add_calback(spi_callback_t cb, void *data, spi_num_t num);
 
 // return 0 if not err
-int spi_half_write(spi_num_t num, uint16_t length, uint8_t *data);
+int spi_write(spi_num_t num, uint16_t length, uint8_t *data, spi_mode_com_t mode);
 
 // return 0 if not err
-int spi_half_read(spi_num_t num, uint16_t length, uint8_t *ret);
+int spi_read(spi_num_t num, uint16_t length, uint8_t *ret, spi_mode_com_t mode);
 
 // return flag check
-int spi_half_check_read(spi_num_t num);
+int spi_check_read(spi_num_t num);
 
 
 

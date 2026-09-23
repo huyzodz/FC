@@ -71,7 +71,7 @@ int main(void)
     system_init();
 	
 
-    //FLIGHT_SYSTEM();
+    FLIGHT_SYSTEM();
 	
 	// test
 	test();

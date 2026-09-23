@@ -6,8 +6,6 @@
 #include "simulate.h"
 #include "spi_master.h"
 
-volatile float baromater_base;
-
 
 #define NUM_SPI_DPS310                              SPI_NUM_1
 #define DPS310_SPI_DMA_READ                         DMA_MUX_CHANNEL_7
@@ -15,19 +13,21 @@ volatile float baromater_base;
 
 
 #define GPIO_CLK_DPS310                             3
-#define GPIO_CS_DPS310                              4
+#define GPIO_CS_DPS310                              7
 #define GPIO_MOSI_DPS310                            5
+#define GPIO_MISO_DPS310                            4
 
 
-#define GPIO_PORT_CS_DPS310                         GPIO_PORT_B
+#define GPIO_PORT_CS_DPS310                         GPIO_PORT_D
 #define GPIO_PORT_CLK_DPS310                        GPIO_PORT_B
 #define GPIO_PORT_MOSI_DPS310                       GPIO_PORT_B
-#define MODE_COM_SPI_DPS310                         SPI_HALF_DUPLEX
+#define GPIO_PORT_MISO_DPS310                       GPIO_PORT_B
+#define MODE_COM_SPI_DPS310                         SPI_FULL_DUPLEX
 
 // modify if change config
 
 #define SCALE_FACTOR_KP                             1040384
-#define SCALE_FACTOR_KT                             3670016
+#define SCALE_FACTOR_KT                             524288
 #define WAIT_STATE_T                                10
 
 
@@ -40,8 +40,11 @@ volatile float baromater_base;
 volatile uint8_t barometer_data_ram [BAROMETER_SIZE_READ * 2];
 int8_t flag_read_barometer = 0;
 int8_t flag_read_barometer_err = 0;
-uint8_t count_read_temp = 0;
+uint8_t count_read_temp = WAIT_STATE_T;
 
+// base
+volatile float baromater_base;
+volatile int32_t p_raw_base;
 
 // pressure calib
 int32_t c00, c10;
@@ -54,8 +57,63 @@ int16_t c0, c1;
 // tempr
 int32_t t_raw;
 
+void dps310_callback(spi_flag_cb_t *flag)
+{
+    gpio_write(GPIO_PORT_CS_DPS310, GPIO_CS_DPS310, 1);
+}
 
-static int barometer_dps310_read_raw_pa(float *ret)
+
+static inline int dps310_write_reg(uint8_t addr, uint8_t val)
+{
+    uint8_t temp [2] = {addr, val};
+    int check = 0;
+
+    gpio_write(GPIO_PORT_CS_DPS310, GPIO_CS_DPS310, 0);
+    check = spi_write(NUM_SPI_DPS310, 2, temp, SPI_FULL_DUPLEX);
+    gpio_write(GPIO_PORT_CS_DPS310, GPIO_CS_DPS310, 1);
+
+    return check;
+}
+
+static inline int dps310_read_reg(uint8_t addr, uint8_t *ret)
+{
+    int check = 0;
+
+    // turn bit 7 to 1 to read
+    addr |= 0x80;
+
+    gpio_write(GPIO_PORT_CS_DPS310, GPIO_CS_DPS310, 0);
+    check = spi_write(NUM_SPI_DPS310, 1, &addr, SPI_FULL_DUPLEX);
+    check = (spi_read(NUM_SPI_DPS310, 1, ret, SPI_FULL_DUPLEX) == 0 && check == 0) ? 0 : 1;
+    gpio_write(GPIO_PORT_CS_DPS310, GPIO_CS_DPS310, 1);
+
+    return check;
+}
+
+// wait = 1 if wait
+static inline int dps310_burst_read(uint8_t addr, uint16_t length, uint8_t *ret, uint8_t wait)
+{
+    // turn bit 7 to 1 to read
+    addr |= 0x80;
+
+    gpio_write(GPIO_PORT_CS_DPS310, GPIO_CS_DPS310, 0);
+    spi_write(NUM_SPI_DPS310, 1, &addr, SPI_FULL_DUPLEX);
+    spi_read(NUM_SPI_DPS310, length, ret, SPI_FULL_DUPLEX);
+
+
+    // wait if need
+    if (wait == 1)
+        while(spi_check_read(NUM_SPI_DPS310) != SPI_TRUE)
+        {
+            if (spi_check_read(NUM_SPI_DPS310) == SPI_ERR)
+                return -1;
+        }
+            
+    return 0;
+}
+
+
+static int barometer_dps310_read_raw_pa(float *ret, int32_t *p_base)
 {
 #ifdef SIMULATION_ON
     simulate_data_rx_t data_temp;
@@ -64,12 +122,13 @@ static int barometer_dps310_read_raw_pa(float *ret)
 #else
     uint8_t *temp;
     int32_t p_raw;
+    uint8_t update_base = 0;
     float p_raw_rc, t_raw_rc;
 
     // if (i2c_check_read_burst(NUM_I2C_DPS310) != I2C_TRUE)
     //     return -1;
 
-    if (spi_half_check_burst_read(NUM_SPI_DPS310) != SPI_TRUE)
+    if (spi_check_read(NUM_SPI_DPS310) != SPI_TRUE)
         return -1;
 
     if (flag_read_barometer_err)
@@ -82,15 +141,17 @@ static int barometer_dps310_read_raw_pa(float *ret)
 
     // handle raw and scale
     p_raw = (int32_t)((temp[0] << 16) | (temp[1] << 8) | temp[2]);
-    if (p_raw & 0x0800000)
+    if (p_raw & 0x00800000)
         p_raw |= 0xFF000000;
     p_raw_rc =(float)p_raw / SCALE_FACTOR_KP;
 
     if (count_read_temp >= WAIT_STATE_T)
     {
         t_raw = (int32_t)((temp[3] << 16) | (temp[4] << 8) | temp[5]);
-        if (t_raw & 0x0800000)
+        if (t_raw & 0x00800000)
             t_raw |= 0xFF000000;
+        
+        update_base = 1;
         // reset
         count_read_temp = 0;
     }
@@ -98,6 +159,15 @@ static int barometer_dps310_read_raw_pa(float *ret)
 
     // handle calib
     *ret = (float)(c00 + p_raw_rc*(c10 + p_raw_rc*(c20 + p_raw_rc*c30)) + t_raw_rc*c01 + t_raw_rc*p_raw_rc*(c11 + p_raw_rc*c21));
+
+    // update base with temp
+    if (update_base == 1)
+    {
+        baromater_base = (float)(c00 + p_raw_base*(c10 + p_raw_base*(c20 + p_raw_base*c30)) + t_raw_rc*c01 + t_raw_rc*p_raw_base*(c11 + p_raw_base*c21));
+    }
+
+    if (p_base != NULL)
+        *p_base = p_raw;
 
     // if need for show temp
     // Tcomp = c0*0.5f + c1*t_raw_rc;
@@ -121,18 +191,18 @@ int send_cmd_read_dps310(void)
 
     //if (check_write != -1)
     //check = i2c_burst_read(ADDRESS_DEVICE_DPS310, 0x00, BAROMETER_SIZE_READ, NUM_I2C_DPS310, DPS310_I2C_DMA_READ, ptr);
-    check = spi_half_burst_read_reg(NUM_SPI_DPS310, DPS310_SPI_DMA_READ, ADDRESS_READ_DATA_DPS310, BAROMETER_SIZE_READ, ptr);
+    check = dps310_burst_read(ADDRESS_READ_DATA_DPS310, BAROMETER_SIZE_READ , ptr, 0);
         
 
     if (check == 0)
     {
-        // handle err for read
         flag_read_barometer = (flag_read_barometer == 0) ? 1 : 0;
         flag_read_barometer_err = 0;
         count_read_temp++;
     }
     else
     {
+        // handle err for read
         flag_read_barometer_err = 1;
         return -1;
     }
@@ -146,13 +216,13 @@ void first_handle_calib_coefficient(void)
     while (1)
     {
         //if (i2c_burst_read(ADDRESS_DEVICE_DPS310, 0x10, 18, NUM_I2C_DPS310, DPS310_I2C_DMA_READ, data_temp) != 0)
-        if (spi_half_burst_read_reg(NUM_SPI_DPS310, DPS310_SPI_DMA_READ, ADDRESS_READ_DATA_DPS310, 18, data_temp) != 0)
+        // read and wait
+        if (dps310_burst_read(0x10, 18, data_temp, 1) != 0)
             continue;
         break;
     } 
 
-    // wait until read done
-    while (spi_half_check_burst_read(NUM_SPI_DPS310) != SPI_TRUE);
+    
 
     c0 = (int16_t)((data_temp[0] << 4) | ((data_temp[1] >> 4)&0x0F));
     if (c0 & 0x0800) 
@@ -180,24 +250,29 @@ void first_handle_calib_coefficient(void)
 void barometer_dps310_init(void)
 {
 #ifndef SIMULATION_ON
-    // init with i2c
     // init with real device here
+    // init
     spi_master_config_t cfg = {
-        .CPHA = 0,
-        .CPOL = 0,
+        .CPHA = 1,
+        .CPOL = 1,
         .speed = SPEED_SPI_DPS310,
         .dma_read = DPS310_SPI_DMA_READ,
         .enable_crc = SPI_FALSE,
         .gpio_clk = GPIO_CLK_DPS310,
         .gpio_cs = GPIO_CS_DPS310,
         .gpio_mosi = GPIO_MOSI_DPS310,
+        .gpio_miso = GPIO_MISO_DPS310,
         .port_clk = GPIO_PORT_CLK_DPS310,
         .port_cs = GPIO_PORT_CS_DPS310,
         .port_mosi = GPIO_PORT_MOSI_DPS310,
+        .port_miso = GPIO_PORT_MISO_DPS310,
         .spi_num = NUM_SPI_DPS310,
-        .mode_com = MODE_COM_SPI_DPS310
+        .mode_com = MODE_COM_SPI_DPS310,
+        .spi_irq_en = SPI_TRUE
     };
     spi_master_init(cfg);
+    gpio_write(GPIO_PORT_CS_DPS310, GPIO_CS_DPS310, 1);
+    spi_add_calback(&dps310_callback, NULL, NUM_SPI_DPS310);
 
     delay_ms(10);
 
@@ -205,43 +280,38 @@ void barometer_dps310_init(void)
     // first init to dps310
     while (1)
     {
-        uint8_t chip_id = 0x00;;
+        uint8_t chip_id = 0x00;
         // this config will have
         // 5cm Precision, 64pr sec , 64 oversampling rate for press
         // 4 pr sec, single time for temp
 
         // reset soft
-        if (spi_half_write_reg(NUM_SPI_DPS310, 0x0C, 0x09) != 0)
+        if (dps310_write_reg(0x0C, 0x09) != 0)
             continue;
+        delay_ms(100);
 		
-		
-        delay_ms(1000);
-		continue;
-		
-        // set interface 3 wire and enable p-shift
-        if (spi_half_write_reg(NUM_SPI_DPS310, 0x09, 0x05) != 0)
+        // enable p-shift
+        if (dps310_write_reg(0x09, 0x04) != 0)
             continue;
-        
-        delay_ms(1000);
+        delay_ms(100);
         
         // read chip id
-        spi_half_read_reg(NUM_SPI_DPS310, 0x8D, &chip_id);
+        dps310_read_reg(0x0D, &chip_id);
         if (chip_id != 0x10)
             continue;
 
         // config pressure
-        if (spi_half_write_reg(NUM_SPI_DPS310, 0x06, 0x66) != 0)
+        if (dps310_write_reg(0x06, 0x66) != 0)
             continue;
-		
-		delay_ms(1000);
+		delay_ms(100);
+
         // config temp
-        if (spi_half_write_reg(NUM_SPI_DPS310, 0x07, 0xA0) != 0)
+        if (dps310_write_reg(0x07, 0xA0) != 0)
             continue;
+        delay_ms(100);
 
-
-        delay_ms(1000);
         // enable background mode
-        if (spi_half_write_reg(NUM_SPI_DPS310, 0x08, 0x07) != 0)
+        if (dps310_write_reg(0x08, 0x07) != 0)
             continue;
 
         // if (i2c_write_reg(ADDRESS_DEVICE_DPS310, 0x0C, 0x09, NUM_I2C_DPS310) != 0)
@@ -263,28 +333,36 @@ void barometer_dps310_init(void)
         // if (i2c_write_reg(ADDRESS_DEVICE_DPS310, 0x08, 0x07, NUM_I2C_DPS310) != 0)
         //     continue;
         
-        // break;
+        break;
     }
-
+	
+	delay_ms(1000);
     //read 0x10 -> 0x21 to handle calib
     first_handle_calib_coefficient();
-    delay_ms(100);
+    delay_ms(1000);
 
 #endif
 
     float sum = 0;
+    int32_t sum_p_raw_base = 0;
     int i = 0;
+	count_read_temp = WAIT_STATE_T;
     // handle base
     while (i < 10)
     {
         float temp = 0;
+        int32_t temp_p_raw = 0;
         while (send_cmd_read_dps310() != 0);
-        while (spi_half_check_burst_read(NUM_SPI_DPS310) != SPI_TRUE);
-        if (barometer_dps310_read_raw_pa(&temp) != 0) continue;
+        while (spi_check_read(NUM_SPI_DPS310) != SPI_TRUE);
+        if (barometer_dps310_read_raw_pa(&temp, &temp_p_raw) != 0) continue;
+
         sum += temp;
+        sum_p_raw_base += temp_p_raw;
         i++;
         delay_ms(100);
     }
+
+    p_raw_base = sum_p_raw_base / 10;
     baromater_base = (float)(sum / 10);
 }
 
@@ -292,9 +370,10 @@ void barometer_dps310_init(void)
 int barometer_dps310_read_2_height(float *ret)
 {
     float temp;
-    if (barometer_dps310_read_raw_pa(&temp) != 0) return 1;
+    if (barometer_dps310_read_raw_pa(&temp, NULL) != 0) return 1;
 
     // tranfer to height
-    *ret = (float)44330*(1.0f - powf((temp/baromater_base), 0.1903f));
+    // add minus because z down
+    *ret = (float)-44330*(1.0f - powf((temp/baromater_base), 0.1903f));
     return 0;
 }

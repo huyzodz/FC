@@ -16,6 +16,7 @@
 ".\objects\imu_bmi270.o"
 ".\objects\rasp_com.o"
 ".\objects\gps_be880.o"
+".\objects\barometer_dps310.o"
 ".\objects\esekf.o"
 ".\objects\pid.o"
 ".\objects\smc.o"

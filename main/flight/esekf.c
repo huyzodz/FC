@@ -9,8 +9,8 @@
 // test need to modify
 #define SIGMA_V_SQUARE                  1e-3f
 #define SIGMA_PHI_SQUARE                1e-4f
-#define SIGMA_A_SQUARE                  1e-6f
-#define SIGMA_W_SQUARE                  1e-7f
+#define SIGMA_A_SQUARE                  1e-8f
+#define SIGMA_W_SQUARE                  1e-9f
 
 
 float ax_w, ay_w, az_w;
@@ -347,6 +347,7 @@ void convert_2_velocity(velocity_t *ret, const velocity_t *vk, const quaternion_
 #ifdef SIMULATION_ON
     ret->vz = vk->vz + (az_w)*dt;
 #else
+    //ret->vz = vk->vz + (az_w - DRONE_g)*dt;
     ret->vz = vk->vz + (az_w - DRONE_g)*dt;
 #endif
 }

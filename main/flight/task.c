@@ -334,15 +334,15 @@ void task_handle_barometer(task_data_t *data)
 {
     float data_barometer;
     int check;
-    //barometer_dps310_read_2_height(&data_barometer);
+    
 #ifdef SIMULATION_ON
     while (barometer_dps310_read_2_height(&data_barometer) != 0);
 #else
 
-    // check = barometer_dps310_read_2_height(&data_barometer);
-    // send_cmd_read_dps310();
-    // if (check != 0)
-    //     return;
+    check = barometer_dps310_read_2_height(&data_barometer);
+    send_cmd_read_dps310();
+    if (check != 0)
+        return;
 #endif
     esekf_update_with_barometer(P, data_barometer);
 }
@@ -352,12 +352,12 @@ void task_handle_compass(task_data_t *data)
 {
     float compass_yaw;
     float roll, pitch, yaw;
-    int check;
+    int check = 1;
 
-    quaternion_2_euler(&drone_quaternion, &roll, &pitch, &yaw);
-    // handle error when read error
-    check = be880_read_compass_2_yaw(roll, pitch, &compass_yaw);
-    be880_send_cmd_read_compass();
+    // quaternion_2_euler(&drone_quaternion, &roll, &pitch, &yaw);
+    // // handle error when read error
+    // check = be880_read_compass_2_yaw(roll, pitch, &compass_yaw);
+    // be880_send_cmd_read_compass();
 
     if (check != 0)
         return;

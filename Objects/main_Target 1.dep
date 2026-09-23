@@ -1,6 +1,6 @@
 Dependencies for Project 'main', Target 'Target 1': (DO NOT MODIFY !)
 CompilerVersion: 6190000::V6.19::ARMCLANG
-F (.\main\main.c)(0x6AAC0627)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/main.o -MD)
+F (.\main\main.c)(0x6AB1DFBC)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/main.o -MD)
 I (main\main.h)(0x6A968B5F)
 I (main\system\init.h)(0x6A954878)
 I (main\flight\drone.h)(0x6A9D8056)
@@ -107,8 +107,8 @@ I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_compiler.h)(0x626F58
 I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_armclang.h)(0x626F58EE)
 I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\mpu_armv7.h)(0x626F58EE)
 I (E:\Keli_v5\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cachel1_armv7.h)(0x626F58EE)
-F (.\lib\spi_master.c)(0x6AB0DE22)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/spi_master.o -MD)
-I (lib\inc\spi_master.h)(0x6AAFF382)
+F (.\lib\spi_master.c)(0x6AB1DC27)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/spi_master.o -MD)
+I (lib\inc\spi_master.h)(0x6AB1DC1B)
 I (lib\inc\dma.h)(0x6A53AE18)
 I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
 I (lib\inc\gpio.h)(0x6AACEEC4)
@@ -150,16 +150,16 @@ I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
 I (main\flight\esekf.h)(0x6AA56CB4)
 I (main\driver\imu_bmi270.h)(0x6AA56249)
 I (lib\inc\timer.h)(0x6AA3B560)
-F (.\test\test_spi.c)(0x6AB0BFBB)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/test_spi.o -MD)
+F (.\test\test_spi.c)(0x6AB1E00A)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/test_spi.o -MD)
 I (main\driver\barometer_dps310.h)(0x6AAAAD52)
 I (test\inc\test.h)(0x6AAC0589)
 I (lib\inc\timer.h)(0x6AA3B560)
 I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
-I (lib\inc\spi_master.h)(0x6AAFF382)
+I (lib\inc\spi_master.h)(0x6AB1DC1B)
 I (lib\inc\dma.h)(0x6A53AE18)
 I (lib\inc\gpio.h)(0x6AACEEC4)
 I (E:\Keli_v5\ARM\ARMCLANG\include\stdio.h)(0x63885718)
-F (.\main\system\init.c)(0x6AAE9E3C)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/init.o -MD)
+F (.\main\system\init.c)(0x6AB1DFAE)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O0 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/init.o -MD)
 I (main\system\init.h)(0x6A954878)
 I (lib\inc\clock.h)(0x6A8D5502)
 I (E:\Keli_v5\ARM\ARMCLANG\include\stdio.h)(0x63885718)
@@ -210,7 +210,20 @@ I (lib\inc\timer.h)(0x6AA3B560)
 I (simulation\simulate.h)(0x6A9EBF4D)
 I (main\driver\imu_bmi270.h)(0x6AA56249)
 I (main\flight\mixer.h)(0x6A84525C)
-F (.\main\flight\esekf.c)(0x6AA56CFE)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/esekf.o -MD)
+F (.\main\driver\barometer_dps310.c)(0x6AB1EC13)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/barometer_dps310.o -MD)
+I (main\driver\barometer_dps310.h)(0x6AAAAD52)
+I (E:\Keli_v5\ARM\ARMCLANG\include\math.h)(0x63885718)
+I (lib\inc\timer.h)(0x6AA3B560)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
+I (simulation\define_sim.h)(0x6AA4035F)
+I (simulation\simulate.h)(0x6A9EBF4D)
+I (main\driver\imu_bmi270.h)(0x6AA56249)
+I (main\flight\mixer.h)(0x6A84525C)
+I (lib\inc\spi_master.h)(0x6AB1DC1B)
+I (lib\inc\dma.h)(0x6A53AE18)
+I (lib\inc\gpio.h)(0x6AACEEC4)
+I (E:\Keli_v5\ARM\ARMCLANG\include\stdio.h)(0x63885718)
+F (.\main\flight\esekf.c)(0x6AB1EED7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/esekf.o -MD)
 I (main\flight\esekf.h)(0x6AA56CB4)
 I (main\driver\imu_bmi270.h)(0x6AA56249)
 I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
@@ -231,7 +244,7 @@ I (simulation\define_sim.h)(0x6AA4035F)
 I (E:\Keli_v5\ARM\ARMCLANG\include\math.h)(0x63885718)
 I (main\flight\drone.h)(0x6A9D8056)
 F (.\main\flight\drone.c)(0x6A9D805C)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/drone_1.o -MD)
-F (.\main\flight\task.c)(0x6AAE9E1D)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/task.o -MD)
+F (.\main\flight\task.c)(0x6AB1E356)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Weverything -Wno-packed -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./test/inc -I ./main -I ./lib/inc -I ./main/driver -I ./main/flight -I ./main/scheduler -I ./main/system -I ./simulation -Wno-sign-conversion -w-I./RTE/_Target_1-IE:/Keli_v5/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IE:/Keli_v5/Pack/Keil/STM32H7xx_DFP/3.1.1/Drivers/CMSIS/Device/ST/STM32H7xx/Include-D__UVISION_VERSION="538" -D_RTE_ -DSTM32H750xx -D_RTE_-o ./objects/task.o -MD)
 I (main\flight\task.h)(0x6AA6C3D7)
 I (main\scheduler\drone_scheduler.h)(0x6AA3B80E)
 I (E:\Keli_v5\ARM\ARMCLANG\include\stdint.h)(0x63885718)
