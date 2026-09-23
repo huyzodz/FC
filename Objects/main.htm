@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\main.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\main.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Tue Sep 22 09:58:36 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Wed Sep 23 19:34:19 2026
 <BR><P>
 <H3>Maximum Stack Usage =       1160 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -204,8 +204,8 @@ Function Pointers
 Global Symbols
 </H3>
 <P><STRONG><a name="[9e]"></a>__main</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, __main.o(!!!main))
-<BR><BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_entry
-<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__scatterload
+<BR><BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__scatterload
+<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_entry
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32h750xx.o(.text)
 </UL>
@@ -1151,7 +1151,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32h750xx.o(.text)
 </UL>
-<P><STRONG><a name="[d0]"></a>barometer_dps310_init</STRONG> (Thumb, 648 bytes, Stack size 64 bytes, barometer_dps310.o(.text.barometer_dps310_init))
+<P><STRONG><a name="[d0]"></a>barometer_dps310_init</STRONG> (Thumb, 684 bytes, Stack size 64 bytes, barometer_dps310.o(.text.barometer_dps310_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 340<LI>Call Chain = barometer_dps310_init &rArr; spi_master_init &rArr; spi_dma_init &rArr; dma_init &rArr; __NVIC_EnableIRQ
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;first_handle_calib_coefficient
@@ -1167,7 +1167,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;phase_2_init
 </UL>
 
-<P><STRONG><a name="[da]"></a>barometer_dps310_read_2_height</STRONG> (Thumb, 84 bytes, Stack size 16 bytes, barometer_dps310.o(.text.barometer_dps310_read_2_height))
+<P><STRONG><a name="[da]"></a>barometer_dps310_read_2_height</STRONG> (Thumb, 88 bytes, Stack size 16 bytes, barometer_dps310.o(.text.barometer_dps310_read_2_height))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = barometer_dps310_read_2_height &rArr; __hardfp_powf &rArr; __set_errno
 </UL>
 <BR>[Calls]<UL><LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_powf
@@ -2196,8 +2196,8 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;spi_read
 </UL>
 
-<P><STRONG><a name="[d9]"></a>barometer_dps310_read_raw_pa</STRONG> (Thumb, 348 bytes, Stack size 16 bytes, barometer_dps310.o(.text.barometer_dps310_read_raw_pa))
-<BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = barometer_dps310_read_raw_pa &rArr; spi_check_read
+<P><STRONG><a name="[d9]"></a>barometer_dps310_read_raw_pa</STRONG> (Thumb, 460 bytes, Stack size 32 bytes, barometer_dps310.o(.text.barometer_dps310_read_raw_pa))
+<BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = barometer_dps310_read_raw_pa &rArr; spi_check_read
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;spi_check_read
 </UL>
