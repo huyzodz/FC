@@ -1,8 +1,0 @@
-E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/database.dir
-E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1.dir
-E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1-build.dir
-E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1-configure.dir
-E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1-executes.dir
-E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/main+Target_1-database.dir
-E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/edit_cache.dir
-E:/K49 CTU tdh/Big_project/luanvan/FC/tmp/Target_1/default/CMakeFiles/rebuild_cache.dir
