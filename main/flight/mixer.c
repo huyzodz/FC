@@ -118,7 +118,7 @@ void mixer_calculate(float U1, float U2, float U3, float U4)
     temp_sim[0] = 0xBB;
     temp_sim[1] = 0xBB;
 
-    if (send.motor_front_l > 5000)
+    if (send.motor_front_l >= 5000)
         usart_write(temp_sim, sizeof(temp_sim), SIMULATE_COM_UART_NUM);
 
 #else

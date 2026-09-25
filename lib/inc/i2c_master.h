@@ -55,6 +55,7 @@ typedef enum {
 } i2c_mode_tranfer_t;
 
 
+
 // set address of device
 int i2c_set_address(uint8_t addr, i2c_num_t i2c_num);
 
@@ -82,6 +83,12 @@ void i2c_stop_tranfer(i2c_num_t i2c_num);
 int i2c_write_reg(uint8_t addr_dev, uint8_t addr, uint8_t val, i2c_num_t num);
 int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num);
 
+
+// use to send base on which data and address size (smaller 255)
+int i2c_send(uint8_t addr_dev, uint8_t *data, uint16_t length, i2c_num_t num);
+
+// use for 16 bit addr
+int8_t i2c_recieve(uint8_t addr_dev, uint16_t addr, uint8_t *ret, i2c_num_t num);
 /*
     max length is 255 byte
 */
@@ -96,6 +103,7 @@ int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num);
 
 */
 int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t num, dma_mux1_channel_t dma_channel, uint8_t *ret);
+int i2c_burst_read_addr_16bit(uint8_t addr_dev, uint16_t addr, uint16_t length, i2c_num_t num, dma_mux1_channel_t dma_channel, uint8_t *ret);
 i2c_bool_t i2c_check_read_burst(i2c_num_t num);
 
 int i2c_burst_write(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t num, uint8_t *buff);

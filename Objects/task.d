@@ -6,4 +6,4 @@
   E:\Keli_v5\ARM\ARMCLANG\Bin\..\include\math.h \
   main\driver\barometer_dps310.h main\driver\gps_be880.h \
   main\flight\pid.h main\flight\smc.h \
-  E:\Keli_v5\ARM\ARMCLANG\Bin\..\include\stddef.h
+  E:\Keli_v5\ARM\ARMCLANG\Bin\..\include\stddef.h simulation\simulate.h

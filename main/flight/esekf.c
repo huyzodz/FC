@@ -730,7 +730,58 @@ void esekf_update_with_barometer(matrix_esekf_t P[5][5], float height)
         }
     }
 
-    
+
+    // update 
+    //drone_position.z += x_hat[2];
+    //drone_velocity.vz += x_hat[5];
+    update_norminal_state(x_hat);
+}
+
+void esekf_update_with_vl53l1x(matrix_esekf_t P[5][5], float height)
+{
+    // V = sigma*I, need to modify
+    float V = 0.0004f;
+    float temp;
+    float K[15];
+    float x_hat[15];
+    float err_z = (height - drone_position.z);
+    float P_tempz[15];
+
+    // (H*P*H' + V)^-1
+    temp = (float)1.0f/(P[0][0].data[2][2] + V);
+
+    // P*H' * temp
+    for (int i = 0;i < 5;i++)
+    {
+        for (int j = 0;j < 3;j++)
+        {
+
+            // handle K
+            K[(i*3) + j] = P[i][0].data[j][2] * temp;
+
+            // handle error state of x
+            x_hat[(i*3) + j] = K[(i*3) + j] * err_z;
+
+            // save location of current variable in matrix P
+            P_tempz[(i*3) + j] = P[0][i].data[2][j];
+        }
+    }
+
+    // update P = (I - KH)P
+    for (int i = 0;i < 5;i++)
+    {
+        for (int j = 0;j < 5;j++)
+        {
+            for (int ii = 0;ii < 3;ii++)
+            {
+                for (int jj = 0; jj < 3;jj++)
+                {
+                    P[i][j].data[ii][jj] -= K[(i * 3) + ii] * P_tempz[(j * 3) + jj];
+                }
+            }
+        }
+    }
+
 
     // update 
     //drone_position.z += x_hat[2];

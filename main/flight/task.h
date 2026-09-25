@@ -51,6 +51,7 @@ void task_handle_compass(task_data_t *data);
 
 //fix error for z
 void task_handle_barometer(task_data_t *data);
+void task_handle_vl53l1x(task_data_t *data);
 
 
 void task_handle_gps(task_data_t *data);

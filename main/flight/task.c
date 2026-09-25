@@ -7,6 +7,7 @@
 #include "gps_be880.h"
 #include "pid.h"
 #include "smc.h"
+#include "vl53l1x.h"
 
 
 
@@ -59,7 +60,11 @@ task_t TASK_DRONE [TASK_LENGTH] =
     },
     {
         .name_task = "handle_rate",
+#ifndef SIMULATION_ON
         .freq = 1000,
+#else
+        .freq = 50,
+#endif
         .last_start_time = 0,
         .init_time_run = 2700,
         .last_stop_time = 0,
@@ -146,7 +151,7 @@ volatile float yaw_ref = 0.0f;
 
 volatile float x_ref = 0.0f;
 volatile float y_ref = 0.0f;
-volatile float z_ref = 0.0f;
+volatile float z_ref = 2.0f;
 
 
 // variable ref for layer 2
@@ -345,6 +350,38 @@ void task_handle_barometer(task_data_t *data)
         return;
 #endif
     esekf_update_with_barometer(P, data_barometer);
+}
+
+void task_handle_vl53l1x(task_data_t *data)
+{
+    // unit is mm
+    int16_t data_vl53l1x;
+    float distance;
+    int check = 0;
+    if (drone_position.z > 7)
+    {
+        VL53L1X_POWER_OFF();
+        return;
+    }
+    else if (drone_position.z >= 4)
+    {
+        VL53L1X_POWER_ON();
+        return;   
+    }
+    else
+    {
+        VL53L1X_POWER_ON();
+        check = vl53l1x_read_data(&data_vl53l1x);
+        vl53l1x_send_cmd();
+        if (check == 0)
+        {
+            // change mm -> m
+            distance = (float)data_vl53l1x / 1000.0f;
+            // mul with -1 because z down
+            distance *= -1;
+            esekf_update_with_vl53l1x(P, distance);
+        }
+    }
 }
 
 

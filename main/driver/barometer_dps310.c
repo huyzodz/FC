@@ -341,8 +341,6 @@ void barometer_dps310_init(void)
     first_handle_calib_coefficient();
     delay_ms(1000);
 
-#endif
-
     float sum = 0;
     int32_t sum_p_raw_base = 0;
     int i = 0;
@@ -364,6 +362,24 @@ void barometer_dps310_init(void)
 
     p_raw_base = sum_p_raw_base / 10;
     baromater_base = (float)(sum / 10);
+
+#else
+
+    simulate_data_rx_t data_sim;
+
+    float sum = 0;
+    int i = 0;
+    // handle base
+    while (i < 10)
+    {
+       while (simulate_getData(&data_sim) != 0);
+        sum += data_sim.press;
+        i++;
+        delay_ms(100);
+    }
+    baromater_base = (float)(sum / 10);
+#endif
+
 }
 
 

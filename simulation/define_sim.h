@@ -4,7 +4,7 @@
 
 /* define below to enable simulate */
 
-//#define                                 SIMULATION_ON
+#define                                 SIMULATION_ON
 
 
 #endif

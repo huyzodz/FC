@@ -67,8 +67,8 @@ void test_simulation(void)
         //usart_write(test, 3, SIMULATE_COM_UART_NUM);
         for (int jj = 0;jj < 25;jj++)
         {   
-            simulate_getData(&data);
-            delay_ms(1);
+            // simulate_getData(&data);
+            delay_ms(10);
             // just for test
             mixer_calculate((float)jj,0,0,0);
         }

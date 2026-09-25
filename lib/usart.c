@@ -7,10 +7,11 @@
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 
 /* use only in this file */
-static volatile usart_data_t *usart_data_glb_rx [4] = {NULL};
+static volatile usart_data_t *usart_data_glb [4] = {NULL};
 
 
 static USART_TypeDef *const usart_table [] = {USART1, USART6, USART2, USART3}; 
+static usart_num_t usart_num_table [] = {USART_1, USART_6, USART_2, USART_3};
 
 void usart_callback_dma_rx(void *arg)
 {
@@ -19,7 +20,20 @@ void usart_callback_dma_rx(void *arg)
     *num = 1;
 }
 
+void usart_callback_dma_tx(void *arg)
+{
+    dma_flag_callback_t *flag = (dma_flag_callback_t*)arg;
+    uint8_t *num = (usart_num_t*)flag->data;
 
+    if (flag->complete_flag == DMA_TRUE); // do sth
+
+    if (flag->error_flag == DMA_TRUE)
+    {
+        dma_stop(usart_data_glb[*num]->dma_channel_tx);
+    }
+    usart_data_glb[*num]->flag_tx = 1;
+
+}
 
 void usart_dma_init(dma_mux1_channel_t channel_rx, dma_mux1_channel_t channel_tx, usart_num_t num)
 {
@@ -41,7 +55,7 @@ void usart_dma_init(dma_mux1_channel_t channel_rx, dma_mux1_channel_t channel_tx
     dma_config_t cfg_tx = {
         .dma_channel = channel_tx,
         .dma_cir_mode = DMA_FALSE,
-        .dma_interupt_enable = DMA_FALSE,
+        .dma_interupt_enable = DMA_TRUE,
         .dma_mem_increse = DMA_TRUE,
         .dma_mem_size = BYTE_8_BIT,
         .dma_per_increse = DMA_FALSE,
@@ -177,6 +191,12 @@ void usart_init(usart_config_t cfg)
         usart->CR1 |= (parity << 9); /* set parity */
     }
 
+    // fifo
+    if (cfg.fifo_en == USART_TRUE)
+        usart->CR1 |= (1 << 29);
+    else
+        usart->CR1 &= ~(1 << 29);
+
     /* intr cfg */
     if (intr_en)
     {
@@ -216,29 +236,39 @@ void usart_init(usart_config_t cfg)
 
 
     /* init struct for use in this file */
-    usart_data_glb_rx[num] = (usart_data_t*)malloc(sizeof(usart_data_t));
-    usart_data_glb_rx[num]->flag = 0;
-    usart_data_glb_rx[num]->data = data_rx;
-    usart_data_glb_rx[num]->pRead = 0;
-    usart_data_glb_rx[num]->pWrite = 0;
-    usart_data_glb_rx[num]->size = size_data_rx;
-    usart_data_glb_rx[num]->dma_channel_rx = dma_rx;
-    usart_data_glb_rx[num]->dma_channel_tx = dma_tx;
+    usart_data_glb[num] = (usart_data_t*)malloc(sizeof(usart_data_t));
+    usart_data_glb[num]->flag = 0;
+    usart_data_glb[num]->flag_tx = 1;
+    usart_data_glb[num]->data = data_rx;
+    usart_data_glb[num]->pRead = 0;
+    usart_data_glb[num]->pWrite = 0;
+    usart_data_glb[num]->size = size_data_rx;
+    usart_data_glb[num]->dma_channel_rx = dma_rx;
+    usart_data_glb[num]->dma_channel_tx = dma_tx;
 
     /* add callback dma */
-    dma_callback_handle_t dma_callback_cfg = {
+    dma_callback_handle_t dma_callback_cfg_rx = {
         .cb = &usart_callback_dma_rx,
         .channel = dma_rx,
-        .data = &usart_data_glb_rx[num]->flag
+        .data = &usart_data_glb[num]->flag
     };
 
+    /* add callback dma tx */
+    /* add callback dma */
+    dma_callback_handle_t dma_callback_cfg_tx = {
+        .cb = &usart_callback_dma_tx,
+        .channel = dma_tx,
+        .data = &usart_num_table[num]
+    };
 
     /* apply dma */
     usart_dma_init(dma_rx, dma_tx, num);
     /* set address dma */
     dma_SetAddr(&usart->RDR, data_rx, size_data_rx, dma_rx);
     /* set callback */
-    dma_add_callback(dma_callback_cfg);
+    dma_add_callback(dma_callback_cfg_rx);
+    dma_add_callback(dma_callback_cfg_tx);
+
     /* start dma */
     dma_start(dma_rx);
 
@@ -263,12 +293,12 @@ int usart_read(uint8_t *ret, uint16_t length, usart_num_t num)
     // set ptr 
     USART_TypeDef *usart = usart_table[num];
 
-    uint8_t cir_flag = usart_data_glb_rx[num]->flag;
-    uint8_t *data_rx = usart_data_glb_rx[num]->data;
-    uint16_t pWrite = usart_data_glb_rx[num]->pWrite;
-    uint16_t pRead = usart_data_glb_rx[num]->pRead;
-    uint16_t size = usart_data_glb_rx[num]->size;
-    dma_mux1_channel_t channel = usart_data_glb_rx[num]->dma_channel_rx;
+    uint8_t cir_flag = usart_data_glb[num]->flag;
+    uint8_t *data_rx = usart_data_glb[num]->data;
+    uint16_t pWrite = usart_data_glb[num]->pWrite;
+    uint16_t pRead = usart_data_glb[num]->pRead;
+    uint16_t size = usart_data_glb[num]->size;
+    dma_mux1_channel_t channel = usart_data_glb[num]->dma_channel_rx;
 
 
     // set dma 
@@ -317,35 +347,47 @@ int usart_read(uint8_t *ret, uint16_t length, usart_num_t num)
 		if (pRead >= size)
         {
             pRead = 0;
-            usart_data_glb_rx[num]->flag = 0;
+            usart_data_glb[num]->flag = 0;
         }
     }
 
     // update 
-    usart_data_glb_rx[num]->pWrite = pWrite;
-    usart_data_glb_rx[num]->pRead = pRead;
+    usart_data_glb[num]->pWrite = pWrite;
+    usart_data_glb[num]->pRead = pRead;
     
 
     return size_read;
 }
 
-
+static int usart_check_tx(usart_num_t num)
+{
+    return usart_data_glb[num]->flag_tx;
+}
 
 int usart_write(uint8_t *src, uint16_t length, usart_num_t num)
 {
     /* set ptr */
     USART_TypeDef *usart = usart_table[num];
-    dma_mux1_channel_t channel = usart_data_glb_rx[num]->dma_channel_tx;
+    dma_mux1_channel_t channel = usart_data_glb[num]->dma_channel_tx;
+
+    if (usart_check_tx(num) != 1)
+        return -1;
+
+    // check data enough to write
+    if (((usart->ISR >> 7) & 0x01) != 0x01)
+        return -1;
 
     if (dma_busy_check(channel))
         return -1;
+
+    usart_data_glb[num]->flag_tx = 0;
+
     dma_stop(channel);
 
     dma_SetAddr(src, &usart->TDR, length, channel);
     dma_start(channel);
     return 0;
 }
-
 
 int usart_set_cursor(int16_t rx, int16_t tx, usart_num_t num)
 {
@@ -354,16 +396,16 @@ int usart_set_cursor(int16_t rx, int16_t tx, usart_num_t num)
 
     if (rx != -1)
     {
-        if (rx >= 0 && rx < usart_data_glb_rx[num]->size)
-            usart_data_glb_rx[num]->pRead = rx;
+        if (rx >= 0 && rx < usart_data_glb[num]->size)
+            usart_data_glb[num]->pRead = rx;
         else 
             return -1;
     }
 
     if (tx != -1)
     {
-        if (tx >= 0 && tx < usart_data_glb_rx[num]->size)
-            usart_data_glb_rx[num]->pRead = tx;
+        if (tx >= 0 && tx < usart_data_glb[num]->size)
+            usart_data_glb[num]->pRead = tx;
         else 
             return -1;
     }

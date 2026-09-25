@@ -61,6 +61,7 @@ typedef struct {
     usart_parity_t parity;
     usart_stop_bit_t stop_bit;
     usart_bool_t msb;           /* read rf page 2060 bit 19*/
+    usart_bool_t fifo_en;
     
 
     usart_bool_t intr_en;       /* en intr or not */
@@ -85,6 +86,10 @@ typedef struct {
     uint8_t flag;
     uint8_t *data;
 
+    // flag for tx
+    // flag = 1 if complete
+    uint8_t flag_tx;
+
     dma_mux1_channel_t dma_channel_rx;
     dma_mux1_channel_t dma_channel_tx;
 } usart_data_t;
@@ -104,5 +109,7 @@ int usart_read(uint8_t *ret, uint16_t length, usart_num_t num);
 int usart_write(uint8_t *src, uint16_t length, usart_num_t num);
 
 int usart_set_cursor(int16_t rx, int16_t tx, usart_num_t num);
+
+static int usart_check_tx(usart_num_t num);
 
 #endif

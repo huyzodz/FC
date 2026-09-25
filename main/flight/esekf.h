@@ -60,6 +60,7 @@ void quaternion_2_euler(const quaternion_t *q, float *roll, float *pitch, float 
 void esekf_imu_covariance(quaternion_t qua, float dt, imu_data_t imu_data, matrix_esekf_t ret[5][5]);
 void esekf_update_with_barometer(matrix_esekf_t P[5][5], float height);
 void esekf_update_with_compass(matrix_esekf_t P[5][5], float compass_yaw, float yaw);
+void esekf_update_with_vl53l1x(matrix_esekf_t P[5][5], float height);
 
 
 

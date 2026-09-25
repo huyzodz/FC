@@ -22,7 +22,7 @@ typedef struct {
     float gyrox;
     float gyroy;
     float gyroz;
-    float press
+    float press;
 } simulate_data_rx_t;
 #pragma pack(pop)
 

@@ -54,6 +54,9 @@ struct task_t{
 
     // this will increse if task being skip
     int8_t starving;
+
+    // flag will be 1 when just start
+    uint8_t flag_start;
 };
 
 #ifdef SIMULATION_ON
