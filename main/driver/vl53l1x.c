@@ -3,9 +3,8 @@
 #include "gpio.h"
 #include "timer.h"
 
-
-#define ADDRESS_DEVICE_VL53L1X_READ     0x53          
-#define ADDRESS_DEVICE_VL53L1X_WRITE    0x52
+    
+#define ADDRESS_DEVICE_VL53L1X		    0x29
 #define ADDRESS_READ_DATA_VL53L1X       
 
 #define CHANNEL_DMA_READ_VL53L1X        DMA_MUX_CHANNEL_8
@@ -22,7 +21,7 @@
 #define GPIO_PORT_XSHUT_VL53L1X         GPIO_PORT_C
 
 
-#define VL53L1X_SIZE_READ                           4
+#define VL53L1X_SIZE_READ                           2
 
 
 
@@ -77,100 +76,105 @@
 #define VL53L1_IDENTIFICATION__MODEL_ID                     0x010F
 #define VL53L1_ROI_CONFIG__MODE_ROI_CENTRE_SPAD				0x013E
 
+static const uint8_t status_rtn[24] = { 255, 255, 255, 5, 2, 4, 1, 7, 3, 0,
+	255, 255, 9, 13, 255, 255, 255, 255, 10, 6,
+	255, 255, 11, 12
+};
+
 
 // do not touch
 const uint8_t VL51L1X_DEFAULT_CONFIGURATION[] = {
-    0x00, /* 0x2d : set bit 2 and 5 to 1 for fast plus mode (1MHz I2C), else don't touch */
-    0x00, /* 0x2e : bit 0 if I2C pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD) */
-    0x00, /* 0x2f : bit 0 if GPIO pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD) */
-    0x01, /* 0x30 : set bit 4 to 0 for active high interrupt and 1 for active low (bits 3:0 must be 0x1), use SetInterruptPolarity() */
-    0x02, /* 0x31 : bit 1 = interrupt depending on the polarity, use CheckForDataReady() */
-    0x00, /* 0x32 : not user-modifiable */
-    0x02, /* 0x33 : not user-modifiable */
-    0x08, /* 0x34 : not user-modifiable */
-    0x00, /* 0x35 : not user-modifiable */
-    0x08, /* 0x36 : not user-modifiable */
-    0x10, /* 0x37 : not user-modifiable */
-    0x01, /* 0x38 : not user-modifiable */
-    0x01, /* 0x39 : not user-modifiable */
-    0x00, /* 0x3a : not user-modifiable */
-    0x00, /* 0x3b : not user-modifiable */
-    0x00, /* 0x3c : not user-modifiable */
-    0x00, /* 0x3d : not user-modifiable */
-    0xff, /* 0x3e : not user-modifiable */
-    0x00, /* 0x3f : not user-modifiable */
-    0x0F, /* 0x40 : not user-modifiable */
-    0x00, /* 0x41 : not user-modifiable */
-    0x00, /* 0x42 : not user-modifiable */
-    0x00, /* 0x43 : not user-modifiable */
-    0x00, /* 0x44 : not user-modifiable */
-    0x00, /* 0x45 : not user-modifiable */
-    0x20, /* 0x46 : interrupt configuration 0->level low detection, 1-> level high, 2-> Out of window, 3->In window, 0x20-> New sample ready , TBC */
-    0x0b, /* 0x47 : not user-modifiable */
-    0x00, /* 0x48 : not user-modifiable */
-    0x00, /* 0x49 : not user-modifiable */
-    0x02, /* 0x4a : not user-modifiable */
-    0x0a, /* 0x4b : not user-modifiable */
-    0x21, /* 0x4c : not user-modifiable */
-    0x00, /* 0x4d : not user-modifiable */
-    0x00, /* 0x4e : not user-modifiable */
-    0x05, /* 0x4f : not user-modifiable */
-    0x00, /* 0x50 : not user-modifiable */
-    0x00, /* 0x51 : not user-modifiable */
-    0x00, /* 0x52 : not user-modifiable */
-    0x00, /* 0x53 : not user-modifiable */
-    0xc8, /* 0x54 : not user-modifiable */
-    0x00, /* 0x55 : not user-modifiable */
-    0x00, /* 0x56 : not user-modifiable */
-    0x38, /* 0x57 : not user-modifiable */
-    0xff, /* 0x58 : not user-modifiable */
-    0x01, /* 0x59 : not user-modifiable */
-    0x00, /* 0x5a : not user-modifiable */
-    0x08, /* 0x5b : not user-modifiable */
-    0x00, /* 0x5c : not user-modifiable */
-    0x00, /* 0x5d : not user-modifiable */
-    0x01, /* 0x5e : not user-modifiable */
-    0xcc, /* 0x5f : not user-modifiable */
-    0x0f, /* 0x60 : not user-modifiable */
-    0x01, /* 0x61 : not user-modifiable */
-    0xf1, /* 0x62 : not user-modifiable */
-    0x0d, /* 0x63 : not user-modifiable */
-    0x01, /* 0x64 : Sigma threshold MSB (mm in 14.2 format for MSB+LSB), use SetSigmaThreshold(), default value 90 mm  */
-    0x68, /* 0x65 : Sigma threshold LSB */
-    0x00, /* 0x66 : Min count Rate MSB (MCPS in 9.7 format for MSB+LSB), use SetSignalThreshold() */
-    0x80, /* 0x67 : Min count Rate LSB */
-    0x08, /* 0x68 : not user-modifiable */
-    0xb8, /* 0x69 : not user-modifiable */
-    0x00, /* 0x6a : not user-modifiable */
-    0x00, /* 0x6b : not user-modifiable */
-    0x00, /* 0x6c : Intermeasurement period MSB, 32 bits register, use SetIntermeasurementInMs() */
-    0x00, /* 0x6d : Intermeasurement period */
-    0x0f, /* 0x6e : Intermeasurement period */
-    0x89, /* 0x6f : Intermeasurement period LSB */
-    0x00, /* 0x70 : not user-modifiable */
-    0x00, /* 0x71 : not user-modifiable */
-    0x00, /* 0x72 : distance threshold high MSB (in mm, MSB+LSB), use SetD:tanceThreshold() */
-    0x00, /* 0x73 : distance threshold high LSB */
-    0x00, /* 0x74 : distance threshold low MSB ( in mm, MSB+LSB), use SetD:tanceThreshold() */
-    0x00, /* 0x75 : distance threshold low LSB */
-    0x00, /* 0x76 : not user-modifiable */
-    0x01, /* 0x77 : not user-modifiable */
-    0x0f, /* 0x78 : not user-modifiable */
-    0x0d, /* 0x79 : not user-modifiable */
-    0x0e, /* 0x7a : not user-modifiable */
-    0x0e, /* 0x7b : not user-modifiable */
-    0x00, /* 0x7c : not user-modifiable */
-    0x00, /* 0x7d : not user-modifiable */
-    0x02, /* 0x7e : not user-modifiable */
-    0xc7, /* 0x7f : ROI center, use SetROI() */
-    0xff, /* 0x80 : XY ROI (X=Width, Y=Height), use SetROI() */
-    0x9B, /* 0x81 : not user-modifiable */
-    0x00, /* 0x82 : not user-modifiable */
-    0x00, /* 0x83 : not user-modifiable */
-    0x00, /* 0x84 : not user-modifiable */
-    0x01, /* 0x85 : not user-modifiable */
-    0x00, /* 0x86 : clear interrupt, use ClearInterrupt() */
-    0x00  /* 0x87 : start ranging, use StartRanging() or StopRanging(), If you want an automatic start after VL53L1X_init() call, put 0x40 in location 0x87 */
+	0x00, /* 0x2d : set bit 2 and 5 to 1 for fast plus mode (1MHz I2C), else don't touch */
+	0x00, /* 0x2e : bit 0 if I2C pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD) */
+	0x00, /* 0x2f : bit 0 if GPIO pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD) */
+	0x01, /* 0x30 : set bit 4 to 0 for active high interrupt and 1 for active low (bits 3:0 must be 0x1), use SetInterruptPolarity() */
+	0x02, /* 0x31 : bit 1 = interrupt depending on the polarity, use CheckForDataReady() */
+	0x00, /* 0x32 : not user-modifiable */
+	0x02, /* 0x33 : not user-modifiable */
+	0x08, /* 0x34 : not user-modifiable */
+	0x00, /* 0x35 : not user-modifiable */
+	0x08, /* 0x36 : not user-modifiable */
+	0x10, /* 0x37 : not user-modifiable */
+	0x01, /* 0x38 : not user-modifiable */
+	0x01, /* 0x39 : not user-modifiable */
+	0x00, /* 0x3a : not user-modifiable */
+	0x00, /* 0x3b : not user-modifiable */
+	0x00, /* 0x3c : not user-modifiable */
+	0x00, /* 0x3d : not user-modifiable */
+	0xff, /* 0x3e : not user-modifiable */
+	0x00, /* 0x3f : not user-modifiable */
+	0x0F, /* 0x40 : not user-modifiable */
+	0x00, /* 0x41 : not user-modifiable */
+	0x00, /* 0x42 : not user-modifiable */
+	0x00, /* 0x43 : not user-modifiable */
+	0x00, /* 0x44 : not user-modifiable */
+	0x00, /* 0x45 : not user-modifiable */
+	0x20, /* 0x46 : interrupt configuration 0->level low detection, 1-> level high, 2-> Out of window, 3->In window, 0x20-> New sample ready , TBC */
+	0x0b, /* 0x47 : not user-modifiable */
+	0x00, /* 0x48 : not user-modifiable */
+	0x00, /* 0x49 : not user-modifiable */
+	0x02, /* 0x4a : not user-modifiable */
+	0x0a, /* 0x4b : not user-modifiable */
+	0x21, /* 0x4c : not user-modifiable */
+	0x00, /* 0x4d : not user-modifiable */
+	0x00, /* 0x4e : not user-modifiable */
+	0x05, /* 0x4f : not user-modifiable */
+	0x00, /* 0x50 : not user-modifiable */
+	0x00, /* 0x51 : not user-modifiable */
+	0x00, /* 0x52 : not user-modifiable */
+	0x00, /* 0x53 : not user-modifiable */
+	0xc8, /* 0x54 : not user-modifiable */
+	0x00, /* 0x55 : not user-modifiable */
+	0x00, /* 0x56 : not user-modifiable */
+	0x38, /* 0x57 : not user-modifiable */
+	0xff, /* 0x58 : not user-modifiable */
+	0x01, /* 0x59 : not user-modifiable */
+	0x00, /* 0x5a : not user-modifiable */
+	0x08, /* 0x5b : not user-modifiable */
+	0x00, /* 0x5c : not user-modifiable */
+	0x00, /* 0x5d : not user-modifiable */
+	0x01, /* 0x5e : not user-modifiable */
+	0xcc, /* 0x5f : not user-modifiable */
+	0x0f, /* 0x60 : not user-modifiable */
+	0x01, /* 0x61 : not user-modifiable */
+	0xf1, /* 0x62 : not user-modifiable */
+	0x0d, /* 0x63 : not user-modifiable */
+	0x01, /* 0x64 : Sigma threshold MSB (mm in 14.2 format for MSB+LSB), use SetSigmaThreshold(), default value 90 mm  */
+	0x68, /* 0x65 : Sigma threshold LSB */
+	0x00, /* 0x66 : Min count Rate MSB (MCPS in 9.7 format for MSB+LSB), use SetSignalThreshold() */
+	0x80, /* 0x67 : Min count Rate LSB */
+	0x08, /* 0x68 : not user-modifiable */
+	0xb8, /* 0x69 : not user-modifiable */
+	0x00, /* 0x6a : not user-modifiable */
+	0x00, /* 0x6b : not user-modifiable */
+	0x00, /* 0x6c : Intermeasurement period MSB, 32 bits register, use SetIntermeasurementInMs() */
+	0x00, /* 0x6d : Intermeasurement period */
+	0x0f, /* 0x6e : Intermeasurement period */
+	0x89, /* 0x6f : Intermeasurement period LSB */
+	0x00, /* 0x70 : not user-modifiable */
+	0x00, /* 0x71 : not user-modifiable */
+	0x00, /* 0x72 : distance threshold high MSB (in mm, MSB+LSB), use SetD:tanceThreshold() */
+	0x00, /* 0x73 : distance threshold high LSB */
+	0x00, /* 0x74 : distance threshold low MSB ( in mm, MSB+LSB), use SetD:tanceThreshold() */
+	0x00, /* 0x75 : distance threshold low LSB */
+	0x00, /* 0x76 : not user-modifiable */
+	0x01, /* 0x77 : not user-modifiable */
+	0x0f, /* 0x78 : not user-modifiable */
+	0x0d, /* 0x79 : not user-modifiable */
+	0x0e, /* 0x7a : not user-modifiable */
+	0x0e, /* 0x7b : not user-modifiable */
+	0x00, /* 0x7c : not user-modifiable */
+	0x00, /* 0x7d : not user-modifiable */
+	0x02, /* 0x7e : not user-modifiable */
+	0xc7, /* 0x7f : ROI center, use SetROI() */
+	0xff, /* 0x80 : XY ROI (X=Width, Y=Height), use SetROI() */
+	0x9B, /* 0x81 : not user-modifiable */
+	0x00, /* 0x82 : not user-modifiable */
+	0x00, /* 0x83 : not user-modifiable */
+	0x00, /* 0x84 : not user-modifiable */
+	0x01, /* 0x85 : not user-modifiable */
+	0x00, /* 0x86 : clear interrupt, use ClearInterrupt() */
+	0x00  /* 0x87 : start ranging, use StartRanging() or StopRanging(), If you want an automatic start after VL53L1X_init() call, put 0x40 in location 0x87 */
 };
 
 
@@ -192,7 +196,7 @@ VL53L1X_ERROR VL53L1X_StopRanging(uint16_t dev)
 
 VL53L1X_ERROR VL53L1X_GetInterruptPolarity(uint16_t dev, uint8_t *pInterruptPolarity)
 {
-	uint8_t Temp;
+	uint8_t Temp = 0;
 	VL53L1X_ERROR status = 0;
 
 	status |= VL53L1_RdByte(dev, GPIO_HV_MUX__CTRL, &Temp);
@@ -211,25 +215,6 @@ VL53L1X_ERROR VL53L1X_SetInterruptPolarity(uint16_t dev, uint8_t NewPolarity)
 	status |= VL53L1_WrByte(dev, GPIO_HV_MUX__CTRL, Temp | (!(NewPolarity & 1)) << 4);
 	return status;
 }
-
-VL53L1X_ERROR VL53L1X_CheckForDataReady(uint16_t dev, uint8_t *isDataReady)
-{
-	uint8_t Temp;
-	uint8_t IntPol;
-	VL53L1X_ERROR status = 0;
-
-	status |= VL53L1X_GetInterruptPolarity(dev, &IntPol);
-	status |= VL53L1_RdByte(dev, GPIO__TIO_HV_STATUS, &Temp);
-	/* Read in the register to check if a new value is available */
-	if (status == 0){
-		if ((Temp & 1) == IntPol)
-			*isDataReady = 1;
-		else
-			*isDataReady = 0;
-	}
-	return status;
-}
-
 
 VL53L1X_ERROR VL53L1X_GetTimingBudgetInMs(uint16_t dev, uint16_t *pTimingBudget)
 {
@@ -381,6 +366,7 @@ VL53L1X_ERROR VL53L1X_CheckForDataReady(uint16_t dev, uint8_t *isDataReady)
 	VL53L1X_ERROR status = 0;
 
 	status |= VL53L1X_GetInterruptPolarity(dev, &IntPol);
+
 	status |= VL53L1_RdByte(dev, GPIO__TIO_HV_STATUS, &Temp);
 	/* Read in the register to check if a new value is available */
 	if (status == 0){
@@ -427,24 +413,27 @@ VL53L1X_ERROR VL53L1X_SetDistanceMode(uint16_t dev, uint16_t DM)
 	return status;
 }
 
-VL53L1X_ERROR VL53L1X_StartRanging(uint16_t dev)
-{
-	VL53L1X_ERROR status = 0;
-
-	status |= VL53L1_WrByte(dev, SYSTEM__MODE_START, 0x40);	/* Enable VL53L1X */
-	return status;
-}
-
 VL53L1X_ERROR VL53L1X_SensorInit(uint16_t dev)
 {
 	VL53L1X_ERROR status = 0;
-	uint8_t Addr = 0x00, tmp =0;
+	uint16_t Addr = 0x00, tmp =0;
 	uint16_t timeout_counter = 0;
 
-	for (Addr = 0x2D; Addr <= 0x87; Addr++){
+	for (Addr = 0x2D; Addr <= 0x87; Addr++)
+	{
 		status |= VL53L1_WrByte(dev, Addr, VL51L1X_DEFAULT_CONFIGURATION[Addr - 0x2D]);
+		if (status != 0)
+			return -1;
+		delay_ms(5);
 	}
+	delay_ms(1000);
+
 	status |= VL53L1X_StartRanging(dev);
+	if (status != 0)
+		return -1;
+	
+	delay_ms(400);
+
 	while (tmp == 0)
 	{
 		status = VL53L1X_CheckForDataReady(dev, &tmp);
@@ -454,12 +443,17 @@ VL53L1X_ERROR VL53L1X_SensorInit(uint16_t dev)
 			status = (uint8_t)VL53L1X_ERROR_TIMEOUT;
 			return status;
 		}
-		status = VL53L1_WaitMs(dev, 1);
+		// status = VL53L1_WaitMs(dev, 1);
+		delay_ms(1);
 	}
 	status |= VL53L1X_ClearInterrupt(dev);
+	delay_ms(1);
 	status |= VL53L1X_StopRanging(dev);
+	delay_ms(1);
 	status |= VL53L1_WrByte(dev, VL53L1_VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND, 0x09); /* two bounds VHV */
+	delay_ms(1);
 	status |= VL53L1_WrByte(dev, 0x0B, 0); /* start VHV from the previous temperature */
+	delay_ms(1);
 	return status;
 }
 
@@ -475,18 +469,84 @@ VL53L1X_ERROR VL53L1X_GetDistance(uint16_t dev, uint16_t *distance)
 	return status;
 }
 
+VL53L1X_ERROR VL53L1X_SetInterMeasurementInMs(uint16_t dev, uint32_t InterMeasMs)
+{
+	uint16_t ClockPLL;
+	VL53L1X_ERROR status = 0;
+
+	status |= VL53L1_RdWord(dev, VL53L1_RESULT__OSC_CALIBRATE_VAL, &ClockPLL);
+	ClockPLL = ClockPLL&0x3FF;
+	VL53L1_WrDWord(dev, VL53L1_SYSTEM__INTERMEASUREMENT_PERIOD,
+			(uint32_t)(ClockPLL * InterMeasMs * 1.075));
+	return status;
+}
+
+VL53L1X_ERROR VL53L1X_GetDistanceMode(uint16_t dev, uint16_t *DM)
+{
+	uint8_t TempDM, status=0;
+
+	status |= VL53L1_RdByte(dev,PHASECAL_CONFIG__TIMEOUT_MACROP, &TempDM);
+	if (TempDM == 0x14)
+		*DM=1;
+	if(TempDM == 0x0A)
+		*DM=2;
+	return status;
+}
+
+VL53L1X_ERROR VL53L1X_GetSensorId(uint16_t dev, uint16_t *sensorId)
+{
+	VL53L1X_ERROR status = 0;
+	uint16_t tmp = 0;
+
+	status |= VL53L1_RdWord(dev, VL53L1_IDENTIFICATION__MODEL_ID, &tmp);
+	*sensorId = tmp;
+	return status;
+}
+
+VL53L1X_ERROR VL53L1X_SetROI(uint16_t dev, uint16_t X, uint16_t Y)
+{
+	uint8_t OpticalCenter;
+	VL53L1X_ERROR status = 0;
+
+	status |=VL53L1_RdByte(dev, VL53L1_ROI_CONFIG__MODE_ROI_CENTRE_SPAD, &OpticalCenter);
+	if (X > 16)
+		X = 16;
+	if (Y > 16)
+		Y = 16;
+	if (X > 10 || Y > 10){
+		OpticalCenter = 199;
+	}
+	status |= VL53L1_WrByte(dev, ROI_CONFIG__USER_ROI_CENTRE_SPAD, OpticalCenter);
+	status |= VL53L1_WrByte(dev, ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE,
+		       (Y - 1) << 4 | (X - 1));
+	return status;
+}
+
+VL53L1X_ERROR VL53L1X_GetRangeStatus(uint16_t dev, uint8_t *rangeStatus)
+{
+	VL53L1X_ERROR status = 0;
+	uint8_t RgSt;
+
+	*rangeStatus = 255;
+	status |= VL53L1_RdByte(dev, VL53L1_RESULT__RANGE_STATUS, &RgSt);
+	RgSt = RgSt & 0x1F;
+	if (RgSt < 24)
+		*rangeStatus = status_rtn[RgSt];
+	return status;
+}
+
 
 /*              touch here          */
 
 volatile uint8_t vl53l1x_data_ram [VL53L1X_SIZE_READ * 2];
 int8_t flag_read_vl53l1x = 0;
 int8_t flag_read_vl53l1x_err = 0;
-static uint16_t distance_base = 0;
+static int16_t distance_base = 0;
 
 
 void vl53l1x_init(void)
 {
-    uint16_t dev = 0x52;
+    uint16_t dev = 0x29;
     /* init i2c */
     i2c_config_t cfg = {
         .analog_filter = I2C_TRUE,
@@ -515,43 +575,73 @@ void vl53l1x_init(void)
 
     // write 1 to xshut
     VL53L1X_POWER_ON();
-    delay_ms(100);
+    delay_ms(200);
+
+	// clear irq of sensor
+	VL53L1X_ClearInterrupt(dev);
 
     // init sensor
     while (1)
     {
-        /* This function must to be called to initialize the sensor with the default setting  */
+		uint16_t id = 0;
+		VL53L1X_POWER_OFF();
+		delay_ms(500);
+		VL53L1X_POWER_ON();
+		delay_ms(500);
+		// check id
+		if (VL53L1X_GetSensorId(dev, &id) != 0)
+			continue;
+		if (id != 0xEACC)
+			continue;
+		/* This function must to be called to initialize the sensor with the default setting  */
         if (VL53L1X_SensorInit(dev) != 0)
             continue;
-        /* Optional functions to be used to change the main ranging parameters according the application requirements to get the best ranging performances */
+        delay_ms(1);
+		/* Optional functions to be used to change the main ranging parameters according the application requirements to get the best ranging performances */
         if (VL53L1X_SetDistanceMode(dev, 2) != 0) /* 1=short, 2=long */
             continue;
+		delay_ms(1);
         if (VL53L1X_SetTimingBudgetInMs(dev, 100) != 0) /* in ms possible values [20, 50, 100, 200, 500] */
             continue;
+		delay_ms(1);
         if (VL53L1X_SetInterMeasurementInMs(dev, 100) != 0) /* in ms, IM must be > = TB */
             continue;
-        if (VL53L1X_SetInterruptPolarity(dev,0) != 0) //This function programs the interrupt polarity, 1 = active high (default), 0 = active low.
-            continue;
+		delay_ms(1);
 
+        // if (VL53L1X_SetInterruptPolarity(dev,1) != 0) //This function programs the interrupt polarity, 1 = active high (default), 0 = active low.
+        //     continue;
+
+		delay_ms(1);
+		if (VL53L1X_SetROI(dev, 10, 10) != 0)
+			continue;
+		delay_ms(1);
+
+		// start
+		if (VL53L1X_StartRanging(dev) != 0)
+			continue;
+
+		delay_ms(1000);
         break;
     }
 
-    // start
-    VL53L1X_StartRanging(dev);
-    delay_ms(10);
-
-    // calculate offset value when in grown
+   
+    
+             
+    // // calculate offset value when in grown
     uint16_t sum = 0;
     int i = 0;
+	int8_t status;
+	
     while (i < 10)
     {
-        uint16_t temp;
+		uint8_t dataReady = 0;
+		uint16_t temp;
         if (VL53L1X_GetDistance(dev, &temp) != 0)
             continue;
         VL53L1X_ClearInterrupt(dev);
         i++;
         sum += temp;
-        delay_ms(100);
+        delay_ms(500);
     }
     distance_base = sum/10;
 }
@@ -569,7 +659,7 @@ int8_t vl53l1x_send_cmd()
     else
         ptr = vl53l1x_data_ram + VL53L1X_SIZE_READ;
     
-    check = i2c_burst_read_addr_16bit(ADDRESS_DEVICE_VL53L1X_READ, VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0, VL53L1X_SIZE_READ, NUM_I2C_VL53L1X, CHANNEL_DMA_READ_VL53L1X, ptr);
+    check = i2c_burst_read_addr_16bit(ADDRESS_DEVICE_VL53L1X, VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0, VL53L1X_SIZE_READ, NUM_I2C_VL53L1X, CHANNEL_DMA_READ_VL53L1X, ptr);
 
     if (check == 0)
     {
@@ -606,7 +696,7 @@ int8_t vl53l1x_read_data(int16_t *ret)
 
     *ret = (int16_t)(temp_data - distance_base);
     // clean irq before send
-    VL53L1X_ClearInterrupt(ADDRESS_DEVICE_VL53L1X_WRITE);
+    VL53L1X_ClearInterrupt(ADDRESS_DEVICE_VL53L1X);
 
 	return status;
 }
@@ -643,14 +733,37 @@ int8_t VL53L1_WrWord(uint16_t dev, uint16_t index, uint16_t data)
 	return status;
 }
 
+int8_t VL53L1_WrDWord(uint16_t dev, uint16_t index, uint32_t data) 
+{
+	uint8_t status = 255;
+	uint8_t data_send [] = 
+	{
+		(uint8_t)((index >> 8) & 0x00FF), 
+		(uint8_t)(index & 0x00FF), 
+		(uint8_t)((data >> 24) & 0x00FF),
+		(uint8_t)((data >> 16) & 0x00FF), 
+		(uint8_t)((data >> 8) & 0x00FF),
+		(uint8_t)(data & 0x00FF)
+	};
+	/* To be filled by customer. Return 0 if OK */
+	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
+	status = i2c_send((uint8_t)dev, data_send, 6, NUM_I2C_VL53L1X);
+	return status;
+}
+
 int8_t VL53L1_RdByte(uint16_t dev, uint16_t index, uint8_t *data) 
 {
 	uint8_t status = 255;
-    dev |= 0x01;
-	
+	uint8_t data_rx_vl53l1x [1] = {0};
 	/* To be filled by customer. Return 0 if OK */
 	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
-    status = i2c_recieve((uint8_t)dev, index, data, NUM_I2C_VL53L1X);
+    // status = i2c_recieve((uint8_t)dev, index, data, NUM_I2C_VL53L1X);
+	status = i2c_burst_read_addr_16bit(dev, index, 1, NUM_I2C_VL53L1X, CHANNEL_DMA_READ_VL53L1X, data_rx_vl53l1x);
+	
+    // wait for read done
+    while (i2c_check_read_burst(NUM_I2C_VL53L1X) != I2C_TRUE);
+
+    *data = data_rx_vl53l1x[0];
 
 	return status;
 }
@@ -658,30 +771,29 @@ int8_t VL53L1_RdByte(uint16_t dev, uint16_t index, uint8_t *data)
 int8_t VL53L1_RdWord(uint16_t dev, uint16_t index, uint16_t *data) 
 {
 	uint8_t status = 255;
-    uint8_t data_rx [2];
-    dev |= 0x01;
+    uint8_t data_rx_vl53l1x [2] = {0};
 	/* To be filled by customer. Return 0 if OK */
 	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
 	
 	/* To be filled by customer. Return 0 if OK */
 	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
-    status = i2c_burst_read_addr_16bit(dev, index, 2, NUM_I2C_VL53L1X, CHANNEL_DMA_READ_VL53L1X, data_rx);
+    status = i2c_burst_read_addr_16bit(dev, index, 2, NUM_I2C_VL53L1X, CHANNEL_DMA_READ_VL53L1X, data_rx_vl53l1x);
 	
     // wait for read done
-    while (i2c_check_read_burst(NUM_I2C_VL53L1X) != I2C_FALSE);
+    while (i2c_check_read_burst(NUM_I2C_VL53L1X) != I2C_TRUE);
 
-    *data = (uint16_t)(data_rx[0] << 8) | data_rx[1];
+    *data = (uint16_t)(data_rx_vl53l1x[0] << 8) | data_rx_vl53l1x[1];
 
 	return status;
 }
 
 
-static void VL53L1X_POWER_ON(void)
+void VL53L1X_POWER_ON(void)
 {
     gpio_write(GPIO_PORT_XSHUT_VL53L1X, GPIO_XSHUT_VL53L1X, 1);
 }
 
-static void VL53L1X_POWER_OFF(void)
+void VL53L1X_POWER_OFF(void)
 {
     gpio_write(GPIO_PORT_XSHUT_VL53L1X, GPIO_XSHUT_VL53L1X, 0);
 }

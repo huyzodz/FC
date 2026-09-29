@@ -67,7 +67,7 @@ void i2c_init(i2c_config_t cfg);
 // max each tranfer is 255 => need to reload nbyte manualy
 int i2c_start(i2c_num_t i2c_num, uint16_t num_byte_tranfer, i2c_mode_tranfer_t mode, uint8_t addr_dev, i2c_bool_t auto_end);
 // restart i2c not need to stop before call
-int i2c_restart(i2c_num_t i2c_num, uint8_t num_byte_tranfer, i2c_mode_tranfer_t mode, i2c_bool_t auto_end);
+int i2c_restart(i2c_num_t i2c_num, uint8_t num_byte_tranfer, uint8_t addr_dev, i2c_mode_tranfer_t mode, i2c_bool_t auto_end);
 
 void i2c_stop_tranfer(i2c_num_t i2c_num);
 
@@ -87,8 +87,8 @@ int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num);
 // use to send base on which data and address size (smaller 255)
 int i2c_send(uint8_t addr_dev, uint8_t *data, uint16_t length, i2c_num_t num);
 
-// use for 16 bit addr
-int8_t i2c_recieve(uint8_t addr_dev, uint16_t addr, uint8_t *ret, i2c_num_t num);
+// // use for 16 bit addr
+// int8_t i2c_recieve(uint8_t addr_dev, uint16_t addr, uint8_t *ret, i2c_num_t num);
 /*
     max length is 255 byte
 */

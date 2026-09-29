@@ -12,6 +12,7 @@
 #include "gps_be880.h"
 #include "pid.h"
 #include "smc.h"
+#include "vl53l1x.h"
 
 
 #ifdef SIMULATION_ON
@@ -53,7 +54,8 @@ void phase_2_init(void)
 	delay_ms(100);
 #endif
     //gps_be880_init(BE880_HAS_COMPASS);
-    barometer_dps310_init();
+    // barometer_dps310_init();
+    vl53l1x_init();
 }
 
 void phase_3_init(void)
@@ -128,7 +130,7 @@ void phase_3_init(void)
     delay_ms(100);
 
     // calib
-    bmi270_calib();
+    // bmi270_calib();
 
     // be880_init_yaw_compas(&yaw_ref);
 }

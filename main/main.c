@@ -57,8 +57,9 @@ void test(void)
     //test_i2c();
     //test_bmi270();
     // test_task();
-    test_simulation();
+    // test_simulation();
     //test_spi();
+	test_vl53l1x();
 }
 
 int main(void)
@@ -71,7 +72,7 @@ int main(void)
     system_init();
 	
 
-    FLIGHT_SYSTEM();
+    // FLIGHT_SYSTEM();
 	
 	// test
 	test();

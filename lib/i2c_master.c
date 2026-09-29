@@ -96,6 +96,16 @@ int i2c_set_address(uint8_t addr, i2c_num_t i2c_num)
     return 0;
 }
 
+static void i2c_wait_transfer_done(I2C_TypeDef *i2c)
+{
+    int32_t i = 0;
+    // wait busy flag turn off
+    while (((i2c->ISR >> 15) & 0x01) == 0x01 && i++ < I2C_TIMEOUT);
+
+    // wait stop bit
+    i = 0;
+    while (((i2c->ISR >> 5) & 0x01) != 0x01 && i++ < I2C_TIMEOUT);
+}
 
 
 void i2c_callback_handle(void *arg)
@@ -303,7 +313,7 @@ int i2c_start(i2c_num_t i2c_num, uint16_t num_byte_tranfer, i2c_mode_tranfer_t m
 }
 
 
-int i2c_restart(i2c_num_t i2c_num, uint8_t num_byte_tranfer, i2c_mode_tranfer_t mode, i2c_bool_t auto_end)
+int i2c_restart(i2c_num_t i2c_num, uint8_t num_byte_tranfer, uint8_t addr_dev, i2c_mode_tranfer_t mode, i2c_bool_t auto_end)
 {
     I2C_TypeDef *i2c;
     i2c = (I2C_TypeDef*)(I2C1_BASE + (i2c_num*0x400));
@@ -317,6 +327,11 @@ int i2c_restart(i2c_num_t i2c_num, uint8_t num_byte_tranfer, i2c_mode_tranfer_t 
             return -1;
     }
 
+    // set new addr
+    /* return -1 if fail in set address */
+    //if (i2c_set_address(addr_dev, i2c_num) == -1)
+    //    return -1;
+
     /* set mode tranfer */
     if (mode == MODE_WRITE)
         I2C_SET_WRITE_MODE(i2c);
@@ -325,7 +340,7 @@ int i2c_restart(i2c_num_t i2c_num, uint8_t num_byte_tranfer, i2c_mode_tranfer_t 
 
     /* set byte tranfer */
     i2c->CR2 &= ~(0xFF << 16); // reset bit
-    i2c->CR2 |= (num_byte_tranfer << 16); // 2 byte tranfer, 1 for address reg, 1 for val
+    i2c->CR2 |= (num_byte_tranfer << 16); //byte tranfer
 
     // handle auto set stop condition
     if (auto_end == I2C_TRUE)
@@ -380,7 +395,7 @@ int i2c_read_byte(uint8_t *ret, i2c_num_t i2c_num)
     I2C_TypeDef *i2c;
     i2c = (I2C_TypeDef*)(I2C1_BASE + (i2c_num*0x400));
 
-    int i = 0;
+    int32_t i = 0;
 
     /* if out timer out then return -1*/
     // wait to read
@@ -399,8 +414,16 @@ int i2c_read_byte(uint8_t *ret, i2c_num_t i2c_num)
         return -1;
     }
 
+    // wait read done
+    i = 0;
+    while (((i2c->ISR >> 2) & 0x01) == 0x01)
+    {
+        *ret = (uint8_t)i2c->RXDR;
+        i++;
+        if (i > I2C_TIMEOUT)
+            return -1;
+    }
 
-    *ret = (uint8_t)i2c->RXDR;
     return 0;
 }
 
@@ -503,7 +526,7 @@ int16_t i2c_read_reg(uint8_t addr_dev, uint8_t addr, i2c_num_t num)
     // i2c->CR2 |= (0x01 << 16); // 1 byte
 
     /* restart */
-    if (i2c_restart(num, 1, MODE_READ, I2C_TRUE) == -1)
+    if (i2c_restart(num, 1, addr_dev, MODE_READ, I2C_TRUE) == -1)
     {
         i2c_stop_tranfer(num);
         i2c_error_recovery(num, -1);
@@ -592,7 +615,7 @@ int i2c_burst_read(uint8_t addr_dev, uint8_t addr, uint16_t length, i2c_num_t nu
     // i2c->CR2 |= (0x01 << 25);
 
     /* restart */
-    if (i2c_restart(num, length, MODE_READ, I2C_TRUE) == -1)
+    if (i2c_restart(num, length, addr_dev, MODE_READ, I2C_TRUE) == -1)
     {
         i2c_stop_tranfer(num);
         goto err_handle;
@@ -731,7 +754,7 @@ int i2c_burst_read_addr_16bit(uint8_t addr_dev, uint16_t addr, uint16_t length, 
 
 
     /* restart */
-    if (i2c_restart(num, length, MODE_READ, I2C_TRUE) == -1)
+    if (i2c_restart(num, length, (addr_dev), MODE_READ, I2C_TRUE) == -1)
     {
         i2c_stop_tranfer(num);
         goto err_handle;
@@ -771,6 +794,9 @@ int i2c_send(uint8_t addr_dev, uint8_t *data, uint16_t length, i2c_num_t num)
         }
     }
 
+    // wait tranfer done
+    i2c_wait_transfer_done(i2c);
+
     // i2c_stop_tranfer(num);
     i2c_clear_flag_stop(i2c);
     return 0;
@@ -779,56 +805,56 @@ int i2c_send(uint8_t addr_dev, uint8_t *data, uint16_t length, i2c_num_t num)
 
 
 
-int8_t i2c_recieve(uint8_t addr_dev, uint16_t addr, uint8_t *ret, i2c_num_t num)
-{
-        /* set i2c */
-    I2C_TypeDef *i2c;
-    uint8_t val;
+// int8_t i2c_recieve(uint8_t addr_dev, uint16_t addr, uint8_t *ret, i2c_num_t num)
+// {
+//         /* set i2c */
+//     I2C_TypeDef *i2c;
+//     uint8_t val;
 
 
-    /*
-    if (num == I2C_NUM_4)
-        i2c = I2C4;
-    else
-        i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
-    */
-    i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
-    // clear flag first
-    i2c_clear_flag_stop(i2c);
+//     /*
+//     if (num == I2C_NUM_4)
+//         i2c = I2C4;
+//     else
+//         i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
+//     */
+//     i2c = (I2C_TypeDef*)(I2C1_BASE + (num*0x400));
+//     // clear flag first
+//     i2c_clear_flag_stop(i2c);
 
-    /* start i2c */
-    // 2 byte because address 16 bit
-    if (i2c_start(num, 2, MODE_WRITE, addr_dev, I2C_FALSE) == -1)
-        return -1;
+//     /* start i2c */
+//     // 2 byte because address 16 bit
+//     if (i2c_start(num, 2, MODE_WRITE, addr_dev, I2C_FALSE) == -1)
+//         return -1;
 
-    /* set address */
-    if (i2c_write_byte((uint8_t)((addr >> 8) & 0x00FF), num) == -1 || i2c_write_byte((uint8_t)(addr & 0x00FF), num) == -1)
-    {
-        i2c_stop_tranfer(num);
-        i2c_error_recovery(num, -1);
-        return -1;
-    }
+//     /* set address */
+//     if (i2c_write_byte((uint8_t)((addr >> 8) & 0x00FF), num) == -1 || i2c_write_byte((uint8_t)(addr & 0x00FF), num) == -1)
+//     {
+//         i2c_stop_tranfer(num);
+//         i2c_error_recovery(num, -1);
+//         return -1;
+//     }
 
-    /* restart */
-    if (i2c_restart(num, 1, MODE_READ, I2C_TRUE) == -1)
-    {
-        i2c_stop_tranfer(num);
-        i2c_error_recovery(num, -1);
-        return -1;
-    }
+//     /* restart */
+//     if (i2c_restart(num, 1, (addr_dev), MODE_READ, I2C_TRUE) == -1)
+//     {
+//         i2c_stop_tranfer(num);
+//         i2c_error_recovery(num, -1);
+//         return -1;
+//     }
         
-    if (i2c_read_byte(&val, num) == -1)
-    {
-        i2c_stop_tranfer(num);
-        i2c_error_recovery(num, -1);
-        return -1;
-    }
+//     if (i2c_read_byte(&val, num) == -1)
+//     {
+//         i2c_stop_tranfer(num);
+//         i2c_error_recovery(num, -1);
+//         return -1;
+//     }
 
-    delay_us(10);
+//     delay_us(10);
 
-    i2c_clear_flag_stop(i2c);
-    // i2c_stop_tranfer(num);
-    *ret = val;
+//     i2c_clear_flag_stop(i2c);
+//     // i2c_stop_tranfer(num);
+//     *ret = val;
     
-    return 0;
-}
+//     return 0;
+// }
