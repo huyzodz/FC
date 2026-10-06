@@ -5,6 +5,6 @@
 void test_task(void);
 void test_spi(void);
 void test_vl53l1x(void);
-
+void test_adc(void);
 
 #endif

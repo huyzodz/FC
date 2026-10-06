@@ -47,6 +47,13 @@ int clock_init(cpu_clock_t clock)
     RCC->PLL2DIVR |= 0x2F; 
 
 
+    // select clock for adc
+    // use per ck source
+    // that mean 64Mhzs
+    RCC->D3CCIPR &= ~(0x03 << 16);
+    RCC->D3CCIPR |= (0x02 << 16);
+
+
     // turn on clock pll2 and pll3
     RCC->CR |= (0x01 << 26); // enable clock pll 2
     RCC->CR |= (0x01 << 28); // enable clock pll 3

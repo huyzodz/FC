@@ -68,6 +68,14 @@ void gpio_init(gpio_config_t *handle)
             p->PUPDR |= ((mode - GPIO_ALTERNATE_INPUT) << (pinNum*2));
         }
     }
+    else if (mode == GPIO_ANALOG)
+    {
+        // analog mode
+        // use for adc
+        p->MODER |= (0x03 << (pinNum*2));
+        // turn off pull
+        p->PUPDR &= ~(0x03 << (pinNum*2));
+    }
     else
     {
         /* config for gpio normal*/

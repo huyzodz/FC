@@ -503,6 +503,11 @@
               <FileType>1</FileType>
               <FilePath>.\lib\spi_master.c</FilePath>
             </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -601,6 +606,11 @@
               <FileName>test_vl53l1x.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\test\test_vl53l1x.c</FilePath>
+            </File>
+            <File>
+              <FileName>test_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\test\test_adc.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -710,6 +720,11 @@
               <FileName>vl53l1x.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main\driver\vl53l1x.c</FilePath>
+            </File>
+            <File>
+              <FileName>batery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\driver\batery.c</FilePath>
             </File>
           </Files>
         </Group>

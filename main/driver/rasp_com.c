@@ -1,9 +1,9 @@
 #include "rasp_com.h"
 #include "usart.h"
 
-#define RASP_COM_PORT               GPIO_PORT_D
-#define RASP_COM_RX                 6
-#define RASP_COM_TX                 5
+#define RASP_COM_PORT               GPIO_PORT_B
+#define RASP_COM_RX                 15
+#define RASP_COM_TX                 14
 #define RASP_COM_DMA_RX             DMA_MUX_CHANNEL_1
 #define RASP_COM_DMA_TX             DMA_MUX_CHANNEL_2
 #define RASP_COM_USART_NUM          USART_2

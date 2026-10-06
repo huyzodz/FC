@@ -13,6 +13,7 @@
 #include "pid.h"
 #include "smc.h"
 #include "vl53l1x.h"
+#include "batery.h"
 
 
 #ifdef SIMULATION_ON
@@ -37,6 +38,9 @@ void phase_1_init(void)
         .pin_start = 0
     };
     dshot_init(dshot);
+
+    batery_init();
+
     delay_ms(100);
 }
 
@@ -142,8 +146,8 @@ void system_init(void)
     phase_1_init();
 
     // second init this init for driver and sensor and some peripheral..
-    phase_2_init();
+    // phase_2_init();
 
     // third init this init for controller system and task
-    phase_3_init();
+    // phase_3_init();
 }

@@ -22,7 +22,7 @@
 
 
 
-#define MAX_MOTOR_SPEED                     15275
+#define MAX_MOTOR_SPEED                     13930
 #define MIN_MOTOR_SPEED                     5000                                                  
 
 
@@ -129,9 +129,14 @@ void mixer_calculate(float U1, float U2, float U3, float U4)
     glb_arr_motor.motor_front_l = RPM_TO_DSHOT(speed_front_l);
     glb_arr_motor.motor_rear_l = RPM_TO_DSHOT(speed_rear_l);
 
-
-    // write to motor
-    write_motor();
+    // add max not to 100% to protect motor
+    if (1)
+    {
+        ;
+    }
+    else
+        // write to motor
+        write_motor();
 #endif
 }
 
